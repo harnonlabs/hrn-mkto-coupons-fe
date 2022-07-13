@@ -85,7 +85,7 @@ function App() {
 
     try {
       const request = await fetch(
-        `https://hrn-mkto-coupons.harnonlabs.workers.dev/spend?coupon=${coupon}`,
+        `https://hrn-mkto-coupons.harnonlabs.workers.dev/test?coupon=${coupon}`,
         {
           headers: { "content-type": "application/json" },
         }
@@ -95,8 +95,8 @@ function App() {
       if (response.status === "error") {
         setCouponError(response.errorMessage)
       }
-      if (response.coupon) {
-        setCouponTest(response.coupon)
+      if (response.status === "found") {
+        setCouponTest("Coupon list found!")
       }
       return response
     } catch (err) {
@@ -169,14 +169,14 @@ function App() {
               }}
               subheader={
                 <ListSubheader component="div" id="nested-list-subheader">
-                  Test one of your uploaded coupons
+                  Check if your coupons list was uploaded
                 </ListSubheader>
               }
             >
               <ListItem>
                 <ListItemText>
                   <TextField
-                    label="Test a coupon"
+                    label="Type your access key"
                     sx={{ margin: "10px" }}
                     onChange={handleChangeCoupon}
                     name="coupon"
