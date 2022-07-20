@@ -4,7 +4,7 @@ import "./index.css"
 import App from "./App"
 import reportWebVitals from "./reportWebVitals"
 import { createTheme, ThemeProvider } from "@mui/material/styles"
-import { purple } from "@mui/material/colors"
+import { Auth0Provider } from "@auth0/auth0-react"
 
 const theme = createTheme({
   palette: {
@@ -22,9 +22,18 @@ const theme = createTheme({
 const root = ReactDOM.createRoot(document.getElementById("root"))
 root.render(
   <React.StrictMode>
-    <ThemeProvider theme={theme}>
-      <App />
-    </ThemeProvider>
+    <Auth0Provider
+      domain="harnonlabs.us.auth0.com"
+      clientId="wKf0ngU3qQjCbLDvaRlYgxLxXVv9RtT2"
+      redirectUri="https://hrn-mkto-coupons-fe.pages.dev"
+      useRefreshTokens={true}
+      scope="openid profile email manage:coupons"
+      audience="https://hrn-auth.harnon.co"
+    >
+      <ThemeProvider theme={theme}>
+        <App />
+      </ThemeProvider>
+    </Auth0Provider>
   </React.StrictMode>
 )
 
