@@ -5,6 +5,7 @@ import App from "./App"
 import reportWebVitals from "./reportWebVitals"
 import { createTheme, ThemeProvider } from "@mui/material/styles"
 import { Auth0Provider } from "@auth0/auth0-react"
+import { BrowserRouter } from "react-router-dom"
 
 const theme = createTheme({
   palette: {
@@ -25,14 +26,16 @@ root.render(
     <Auth0Provider
       domain="harnonlabs.us.auth0.com"
       clientId="wKf0ngU3qQjCbLDvaRlYgxLxXVv9RtT2"
-      redirectUri="https://hrn-mkto-coupons-fe.pages.dev"
+      redirectUri="http://localhost:3000"
       useRefreshTokens={true}
       scope="openid profile email manage:coupons"
       audience="https://hrn-auth.harnon.co"
     >
-      <ThemeProvider theme={theme}>
-        <App />
-      </ThemeProvider>
+      <BrowserRouter>
+        <ThemeProvider theme={theme}>
+          <App />
+        </ThemeProvider>
+      </BrowserRouter>
     </Auth0Provider>
   </React.StrictMode>
 )
