@@ -8,11 +8,14 @@ import {
   Card,
   Chip,
   Paper,
+  FormGroup,
+  FormControlLabel,
+  Checkbox,
 } from "@mui/material"
 import ContentCopyIcon from "@mui/icons-material/ContentCopy"
 import { useAuth0 } from "@auth0/auth0-react"
 import { AppContext } from "../../App"
-import { Routes, Route, Link } from "react-router-dom"
+import { Link } from "react-router-dom"
 
 function copyToClipboard(e) {
   let copyText = document.getElementById("key-text")
@@ -21,7 +24,7 @@ function copyToClipboard(e) {
 }
 
 function LoadCouponScreen() {
-  const { user, isAuthenticated, isLoading } = useAuth0()
+  const { user } = useAuth0()
   const appContext = React.useContext(AppContext)
   const fileReader = new FileReader()
   const [name, setName] = React.useState()
@@ -29,6 +32,7 @@ function LoadCouponScreen() {
   const [couponKey, setCouponKey] = React.useState()
   const [csvToJSON, setCsvToJSON] = React.useState([])
   const [isSubmitDone, setIsSubmitDone] = React.useState(false)
+  const [isAnon, setIsAnon] = React.useState(false)
 
   const csvToObj = string => {
     const csvRows = string.slice(string.indexOf("\n") + 1).split("\n")
@@ -53,7 +57,9 @@ function LoadCouponScreen() {
   const sendToServer = async x => {
     try {
       const request = await fetch(
-        `https://worker.harnonlabs.workers.dev/load`,
+        !isAnon
+          ? `https://worker.harnonlabs.workers.dev/load`
+          : `https://worker.harnonlabs.workers.dev/load-anon`,
         {
           method: "POST",
           body: JSON.stringify({
@@ -62,6 +68,7 @@ function LoadCouponScreen() {
               email: user.email,
               token: appContext.token,
               name,
+              isAnon,
             },
           }),
           headers: { "content-type": "application/json" },
@@ -82,7 +89,10 @@ function LoadCouponScreen() {
         const csvOutput = event.target.result
         const json = csvToObj(csvOutput)
         const response = await sendToServer(json)
-        if (response.message === "loaded") {
+        if (
+          response.message === "loaded" ||
+          response.message === "loaded anon"
+        ) {
           setIsSubmitDone(true)
           setCouponKey(response.data)
         }
@@ -91,6 +101,12 @@ function LoadCouponScreen() {
       fileReader.readAsText(file)
     }
   }
+
+  const handleCheckbox = () => {
+    setIsAnon(s => !s)
+  }
+
+  console.log(isAnon)
 
   return (
     <>
@@ -135,6 +151,15 @@ function LoadCouponScreen() {
                   marginBottom: "1rem",
                 }}
               />
+            </Box>
+            <Box sx={{ display: "flex", justifyContent: "center" }}>
+              <FormGroup>
+                <FormControlLabel
+                  control={<Checkbox />}
+                  label="Anonimize?"
+                  onClick={handleCheckbox}
+                />
+              </FormGroup>
             </Box>
             <Button
               variant="contained"

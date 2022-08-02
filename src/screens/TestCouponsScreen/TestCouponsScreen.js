@@ -7,7 +7,7 @@ import { Button, Box, Typography, Paper } from "@mui/material"
 import PickerCouponsLists from "../../components/PickerCouponsLists/PickerCouponsLists"
 
 export default function TestCouponsScreen() {
-  const { user, isAuthenticated, isLoading } = useAuth0()
+  const { user } = useAuth0()
   const [coupon, setCoupon] = React.useState()
   const [couponSpent, setCouponSpent] = React.useState()
   const [selectedCouponsList, setSelectedCouponsList] = React.useState()

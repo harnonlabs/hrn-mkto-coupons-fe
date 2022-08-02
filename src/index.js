@@ -26,7 +26,7 @@ root.render(
     <Auth0Provider
       domain="harnonlabs.us.auth0.com"
       clientId="wKf0ngU3qQjCbLDvaRlYgxLxXVv9RtT2"
-      redirectUri="https://hrn-mkto-coupons-fe.pages.dev"
+      redirectUri="http://localhost:3000"
       useRefreshTokens={true}
       scope="openid profile email manage:coupons"
       audience="https://hrn-auth.harnon.co"
