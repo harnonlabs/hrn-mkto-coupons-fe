@@ -1,5 +1,13 @@
-import { Typography, Paper, Box } from "@mui/material"
+import { Typography, Paper, Box, CardActionArea } from "@mui/material"
+import Card from "@mui/material/Card"
+import CardContent from "@mui/material/CardContent"
 import React from "react"
+
+function copyToClipboard(e) {
+  let copyText = document.getElementById("mktoPayload")
+  navigator.clipboard.writeText(copyText.textContent)
+  alert("Copied the text: " + copyText.textContent)
+}
 
 export default function InstallScreen() {
   return (
@@ -25,8 +33,12 @@ export default function InstallScreen() {
             In order to use your coupons in Marketo, you will need to create a
             Webhook in Marketo
           </Typography>
-          <Typography variant="body">
+          <Typography variant="body" sx={{ textAlign: "left" }}>
             <ol>
+              <li>
+                Go to <b>Admin</b> then <b>Field Management</b> and create a new
+                custom field named <b>mkto_coupon</b>
+              </li>
               <li>
                 Go to <b>Admin</b> then <b>Webhooks</b>
               </li>
@@ -46,17 +58,40 @@ export default function InstallScreen() {
                   </li>
                   <li>
                     <b>Template:</b>{" "}
-                    <Paper sx={{ padding: 1 }}>
-                      <code
-                        style={{ width: "100px", overflowWrap: "break-word" }}
-                      >{`{"content":{"email":{{lead.Email Address:default=none}},"couponsList":"{YOUR_COUPON_LIST_KEY"}}`}</code>
-                    </Paper>
+                    <Card
+                      sx={{ maxWidth: 345, mt: 1, mb: 1 }}
+                      onClick={copyToClipboard}
+                    >
+                      <CardActionArea>
+                        <CardContent>
+                          <code
+                            style={{
+                              width: "100px",
+                              overflowWrap: "break-word",
+                            }}
+                            id="mktoPayload"
+                          >{`{"content":{"email":{{lead.Email Address:default=none}},"couponsList":"YOUR_COUPONS_LIST_KEY", "emailAccount":"YOUR_HRN_MKTO_COUPONS_EMAIL_ADDRESS"}}`}</code>
+                        </CardContent>
+                      </CardActionArea>
+                    </Card>
                   </li>
                   <li>
                     <b>Request Token Encoding:</b> JSON
                   </li>
                   <li>
                     <b>Response Type:</b> JSON
+                  </li>
+                </ul>
+              </li>
+              <li>
+                <b>Response Mapping</b>
+                <ul>
+                  <li>
+                    <b>Response Attribute:</b> coupon
+                  </li>
+                  <li>
+                    <b>Marketo Field:</b> API_NAME_CUSTOM_MKTOCOUPON_FIELD
+                    (mktocoupon if you are following this guide)
                   </li>
                 </ul>
               </li>
