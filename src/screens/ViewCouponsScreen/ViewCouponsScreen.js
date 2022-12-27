@@ -74,7 +74,7 @@ export default function DataTable() {
     setOpenSnackbar(false)
   }
 
-  console.log("render")
+  console.log("REACT_APP_WORKER_URL", process.env.REACT_APP_WORKER_URL)
 
   return (
     <div style={{ height: 400, width: "100%" }}>
