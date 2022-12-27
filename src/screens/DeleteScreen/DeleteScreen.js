@@ -11,7 +11,7 @@ export default function InstallScreen() {
   const onDelete = async () => {
     try {
       const request = await fetch(
-        `https://worker.harnonlabs.workers.dev/delete`,
+        `${process.env.REACT_APP_WORKER_URL}/delete`,
         {
           method: "POST",
           body: JSON.stringify({
@@ -28,11 +28,36 @@ export default function InstallScreen() {
       console.log("ERROR!", err)
     }
   }
+
+  const onDeleteAll = async () => {
+    try {
+      const request = await fetch(
+        `${process.env.REACT_APP_WORKER_URL}/deleteAll`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            content: { token: appContext.token, email: user.email },
+          }),
+          headers: { "content-type": "application/json" },
+        }
+      )
+      const response = await request.json()
+      if (response) {
+        setMessage(response)
+      }
+    } catch (err) {
+      console.log("ERROR!", err)
+    }
+  }
+
   return (
     <Box>
       <Button variant="contained" onClick={onDelete}>
-        Delete All Coupons
+        Delete Email Key
       </Button>
+      {/* <Button variant="contained" color="secondary" onClick={onDeleteAll}>
+        DELETE ALL!
+      </Button> */}
       {/* {message} */}
     </Box>
   )

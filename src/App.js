@@ -12,6 +12,8 @@ function App() {
   const [token, setToken] = React.useState()
   const { getAccessTokenSilently, isLoading } = useAuth0()
 
+  console.log(process.env.REACT_APP_WORKER_URL)
+
   React.useEffect(() => {
     async function callAccessToken() {
       try {

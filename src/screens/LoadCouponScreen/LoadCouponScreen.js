@@ -34,7 +34,7 @@ function LoadCouponScreen() {
   const [isSubmitDone, setIsSubmitDone] = React.useState(false)
   const [isAnon, setIsAnon] = React.useState(false)
 
-  const csvToObj = string => {
+  const csvToObj = (string) => {
     const csvRows = string.slice(string.indexOf("\n") + 1).split("\n")
 
     const result = csvRows.reduce((acc, cur) => {
@@ -50,16 +50,16 @@ function LoadCouponScreen() {
     return result
   }
 
-  const handleOnChange = e => {
+  const handleOnChange = (e) => {
     setFile(e.target.files[0])
   }
 
-  const sendToServer = async x => {
+  const sendToServer = async (x) => {
     try {
       const request = await fetch(
         !isAnon
-          ? `https://worker.harnonlabs.workers.dev/load`
-          : `https://worker.harnonlabs.workers.dev/load-anon`,
+          ? `${process.env.REACT_APP_WORKER_URL}/load`
+          : `${process.env.REACT_APP_WORKER_URL}/load-anon`,
         {
           method: "POST",
           body: JSON.stringify({
@@ -81,7 +81,7 @@ function LoadCouponScreen() {
     }
   }
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
 
     if (file) {
@@ -103,7 +103,7 @@ function LoadCouponScreen() {
   }
 
   const handleCheckbox = () => {
-    setIsAnon(s => !s)
+    setIsAnon((s) => !s)
   }
 
   console.log(isAnon)
@@ -132,7 +132,7 @@ function LoadCouponScreen() {
             id="outlined-required"
             label="Coupons List Name"
             sx={{ mb: "1rem" }}
-            onChange={e => setName(e.target.value)}
+            onChange={(e) => setName(e.target.value)}
           />
           <Typography variant="body1" sx={{ mb: 5 }}>
             Load your CSV file with all your coupons included

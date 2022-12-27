@@ -50,8 +50,9 @@ export default function InstallScreen() {
                     Webhook{" "}
                   </li>
                   <li>
-                    <b>URL:</b>{" "}
-                    https://worker.harnonlabs.workers.dev/getCoupon?mkto=true
+                    <b>URL:</b>
+                    {process.env.REACT_APP_WORKER_URL}
+                    /getCoupon?mkto=true
                   </li>
                   <li>
                     <b>Request Type:</b> POST

@@ -14,22 +14,19 @@ export default function TestCouponsScreen() {
 
   const appContext = React.useContext(AppContext)
 
-  const testCoupon = async x => {
+  const testCoupon = async (x) => {
     try {
-      const request = await fetch(
-        `https://worker.harnonlabs.workers.dev/test`,
-        {
-          method: "POST",
-          body: JSON.stringify({
-            content: {
-              email: user.email,
-              token: appContext.token,
-              couponsList: selectedCouponsList,
-            },
-          }),
-          headers: { "content-type": "application/json" },
-        }
-      )
+      const request = await fetch(`${process.env.REACT_APP_WORKER_URL}/test`, {
+        method: "POST",
+        body: JSON.stringify({
+          content: {
+            email: user.email,
+            token: appContext.token,
+            couponsList: selectedCouponsList,
+          },
+        }),
+        headers: { "content-type": "application/json" },
+      })
       const response = await request.json()
       setCoupon(response.coupon)
       return response
@@ -38,22 +35,19 @@ export default function TestCouponsScreen() {
     }
   }
 
-  const spendCoupon = async x => {
+  const spendCoupon = async (x) => {
     try {
-      const request = await fetch(
-        `https://worker.harnonlabs.workers.dev/spend`,
-        {
-          method: "POST",
-          body: JSON.stringify({
-            content: {
-              email: user.email,
-              token: appContext.token,
-              couponsList: selectedCouponsList,
-            },
-          }),
-          headers: { "content-type": "application/json" },
-        }
-      )
+      const request = await fetch(`${process.env.REACT_APP_WORKER_URL}/spend`, {
+        method: "POST",
+        body: JSON.stringify({
+          content: {
+            email: user.email,
+            token: appContext.token,
+            couponsList: selectedCouponsList,
+          },
+        }),
+        headers: { "content-type": "application/json" },
+      })
       const response = await request.json()
       setCouponSpent(response.coupon)
       return response

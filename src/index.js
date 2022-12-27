@@ -22,22 +22,20 @@ const theme = createTheme({
 
 const root = ReactDOM.createRoot(document.getElementById("root"))
 root.render(
-  <React.StrictMode>
-    <Auth0Provider
-      domain="harnonlabs.us.auth0.com"
-      clientId="wKf0ngU3qQjCbLDvaRlYgxLxXVv9RtT2"
-      redirectUri="https://hrn-mkto-coupons-fe.pages.dev/"
-      useRefreshTokens={true}
-      scope="openid profile email manage:coupons"
-      audience="https://hrn-auth.harnon.co"
-    >
-      <BrowserRouter>
-        <ThemeProvider theme={theme}>
-          <App />
-        </ThemeProvider>
-      </BrowserRouter>
-    </Auth0Provider>
-  </React.StrictMode>
+  <Auth0Provider
+    domain="harnonlabs.us.auth0.com"
+    clientId="wKf0ngU3qQjCbLDvaRlYgxLxXVv9RtT2"
+    redirectUri={process.env.REACT_APP_FE_URL}
+    useRefreshTokens={true}
+    scope="openid profile email manage:coupons"
+    audience="https://hrn-auth.harnon.co"
+  >
+    <BrowserRouter>
+      <ThemeProvider theme={theme}>
+        <App />
+      </ThemeProvider>
+    </BrowserRouter>
+  </Auth0Provider>
 )
 
 // If you want to start measuring performance in your app, pass a function

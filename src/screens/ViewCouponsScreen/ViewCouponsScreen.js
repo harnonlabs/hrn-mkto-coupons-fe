@@ -24,7 +24,7 @@ export default function DataTable() {
     async function getData() {
       try {
         const request = await fetch(
-          `https://worker.harnonlabs.workers.dev/view`,
+          `${process.env.REACT_APP_WORKER_URL}/view`,
           {
             method: "POST",
             body: JSON.stringify({
@@ -37,7 +37,7 @@ export default function DataTable() {
 
         if (response) {
           let finalArr = []
-          const x = response.map(cl => {
+          const x = response.map((cl) => {
             return { name: cl.name, key: cl.key, coupons: { ...cl.coupons } }
           })
           for (let i = 0; i < x.length; i++) {
@@ -62,7 +62,7 @@ export default function DataTable() {
     getData()
   }, [])
 
-  const copyToClipboard = e => {
+  const copyToClipboard = (e) => {
     let copyText = e.target
     console.log(e.target)
     navigator.clipboard.writeText(copyText.textContent)
@@ -73,6 +73,8 @@ export default function DataTable() {
   const onCloseSnackbar = () => {
     setOpenSnackbar(false)
   }
+
+  console.log("render")
 
   return (
     <div style={{ height: 400, width: "100%" }}>

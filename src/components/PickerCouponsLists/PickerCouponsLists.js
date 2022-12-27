@@ -13,7 +13,7 @@ export default function PickerCouponsLists({ setter }) {
   const [couponsList, setCouponsList] = React.useState()
   const [selectedCouponList, setSelectedCouponList] = React.useState("")
 
-  const handleChange = event => {
+  const handleChange = (event) => {
     setSelectedCouponList(event.target.value)
     setter(event.target.value)
   }
@@ -22,7 +22,7 @@ export default function PickerCouponsLists({ setter }) {
     async function getData() {
       try {
         const request = await fetch(
-          `https://worker.harnonlabs.workers.dev/list`,
+          `${process.env.REACT_APP_WORKER_URL}/list`,
           {
             method: "POST",
             body: JSON.stringify({
@@ -54,7 +54,7 @@ export default function PickerCouponsLists({ setter }) {
           onChange={handleChange}
         >
           {couponsList ? (
-            couponsList.map(couponList => (
+            couponsList.map((couponList) => (
               <MenuItem key={couponList.key} value={couponList.key}>
                 {couponList.name}
               </MenuItem>
