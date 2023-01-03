@@ -14,7 +14,7 @@ const columns = [
 ]
 
 export default function DataTable() {
-  const { user, isAuthenticated, isLoading } = useAuth0()
+  const { user, isLoading } = useAuth0()
   const [openSnackbar, setOpenSnackbar] = React.useState(false)
   const [copiedKey, setCopiedKey] = React.useState("")
   const appContext = React.useContext(AppContext)
