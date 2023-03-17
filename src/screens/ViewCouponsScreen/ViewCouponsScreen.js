@@ -1,24 +1,25 @@
-import * as React from "react"
-import { useAuth0 } from "@auth0/auth0-react"
-import { DataGrid } from "@mui/x-data-grid"
-import { Typography, Box, Chip } from "@mui/material"
-import { AppContext } from "../../App"
-import ContentCopyIcon from "@mui/icons-material/ContentCopy"
-import { ResetTvOutlined } from "@mui/icons-material"
-import Snackbar from "@mui/material/Snackbar"
+import * as React from 'react';
+import { useAuth0 } from '@auth0/auth0-react';
+import { DataGrid } from '@mui/x-data-grid';
+import { Typography, Box, Chip } from '@mui/material';
+import { AppContext } from '../../App';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import { ResetTvOutlined } from '@mui/icons-material';
+import Snackbar from '@mui/material/Snackbar';
 
 const columns = [
-  { field: "coupon", headerName: "Coupon Number", width: 150 },
-  { field: "isUsed", headerName: "Is Used?", width: 80 },
-  { field: "dateUsed", headerName: "Date Used", width: 150 },
-]
+  { field: 'coupon', headerName: 'Coupon Number', width: 150 },
+  { field: 'isUsed', headerName: 'Is Used?', width: 80 },
+  { field: 'dateUsed', headerName: 'Date Used', width: 150 },
+  { field: 'email', headerName: 'email', width: 250 },
+];
 
 export default function DataTable() {
-  const { user, isLoading } = useAuth0()
-  const [openSnackbar, setOpenSnackbar] = React.useState(false)
-  const [copiedKey, setCopiedKey] = React.useState("")
-  const appContext = React.useContext(AppContext)
-  const [data, setData] = React.useState([])
+  const { user, isLoading } = useAuth0();
+  const [openSnackbar, setOpenSnackbar] = React.useState(false);
+  const [copiedKey, setCopiedKey] = React.useState('');
+  const appContext = React.useContext(AppContext);
+  const [data, setData] = React.useState([]);
 
   React.useEffect(() => {
     async function getData() {
@@ -26,66 +27,67 @@ export default function DataTable() {
         const request = await fetch(
           `${process.env.REACT_APP_WORKER_URL}/view`,
           {
-            method: "POST",
+            method: 'POST',
             body: JSON.stringify({
               content: { token: appContext.token, email: user.email },
             }),
-            headers: { "content-type": "application/json" },
-          }
-        )
-        const response = await request.json()
+            headers: { 'content-type': 'application/json' },
+          },
+        );
+        const response = await request.json();
 
         if (response) {
-          let finalArr = []
+          let finalArr = [];
           const x = response.map((cl) => {
-            return { name: cl.name, key: cl.key, coupons: { ...cl.coupons } }
-          })
+            return { name: cl.name, key: cl.key, coupons: { ...cl.coupons } };
+          });
           for (let i = 0; i < x.length; i++) {
-            let c = x[i]["coupons"]
-            let result = []
+            let c = x[i]['coupons'];
+            let result = [];
             for (const [key, value] of Object.entries(c)) {
-              result.push({ id: key, coupon: key, ...value })
+              result.push({ id: key, coupon: key, ...value });
             }
             let final = {
-              name: x[i]["name"],
-              key: x[i]["key"],
+              name: x[i]['name'],
+              key: x[i]['key'],
               coupons: result,
-            }
-            finalArr.push(final)
+            };
+            finalArr.push(final);
           }
-          setData(finalArr)
+
+          setData(finalArr);
         }
       } catch (err) {
-        console.log("ERROR!", err)
+        console.log('ERROR!', err);
       }
     }
-    getData()
-  }, [])
+    getData();
+  }, []);
 
   const copyToClipboard = (e) => {
-    let copyText = e.target
-    console.log(e.target)
-    navigator.clipboard.writeText(copyText.textContent)
-    setCopiedKey(copyText.textContent)
-    setOpenSnackbar(true)
-  }
+    let copyText = e.target;
+
+    navigator.clipboard.writeText(copyText.textContent);
+    setCopiedKey(copyText.textContent);
+    setOpenSnackbar(true);
+  };
 
   const onCloseSnackbar = () => {
-    setOpenSnackbar(false)
-  }
+    setOpenSnackbar(false);
+  };
 
-  console.log("REACT_APP_WORKER_URL", process.env.REACT_APP_WORKER_URL, "no")
+  console.log('REACT_APP_WORKER_URL', process.env.REACT_APP_WORKER_URL, 'no');
 
   return (
-    <div style={{ height: 400, width: "100%" }}>
+    <div style={{ height: 400, width: '100%' }}>
       {data &&
         data.map((cl, idx) => {
           return (
             <Box key={`dg-${idx}`}>
-              <Typography variant="h4" sx={{ mt: "1rem", textAlign: "left" }}>
+              <Typography variant="h4" sx={{ mt: '1rem', textAlign: 'left' }}>
                 {cl.name}
               </Typography>
-              <Box sx={{ display: "flex", mt: 2, mb: 2 }}>
+              <Box sx={{ display: 'flex', mt: 2, mb: 2 }}>
                 <Chip
                   icon={<ContentCopyIcon />}
                   label={cl.key}
@@ -93,7 +95,7 @@ export default function DataTable() {
                   color="success"
                   onClick={copyToClipboard}
                   size="small"
-                  sx={{ padding: 1, borderStyle: "dashed" }}
+                  sx={{ padding: 1, borderStyle: 'dashed' }}
                 />
               </Box>
               {/* <Typography variant="h6" sx={{ textAlign: "left" }}>
@@ -108,7 +110,7 @@ export default function DataTable() {
                 // checkboxSelection
               />
             </Box>
-          )
+          );
         })}
       <Snackbar
         open={openSnackbar}
@@ -117,5 +119,5 @@ export default function DataTable() {
         message={`Key copied to clipboard!`}
       />
     </div>
-  )
+  );
 }
