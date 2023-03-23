@@ -20,6 +20,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import InstallDesktopIcon from '@mui/icons-material/InstallDesktop';
 import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle';
+import VerifiedIcon from '@mui/icons-material/Verified';
 import BugReportIcon from '@mui/icons-material/BugReport';
 import BackupIcon from '@mui/icons-material/Backup';
 import PageviewIcon from '@mui/icons-material/Pageview';
@@ -34,7 +35,7 @@ import { useAuth0 } from '@auth0/auth0-react';
 
 import H from './../../img/H.svg';
 import UsersScreen from '../UsersScreen/UsersScreen';
-
+import ApprovalsSCreen from '../ApprovalsScreen/ApprovalsScreen';
 const drawerWidth = 240;
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
@@ -208,6 +209,18 @@ export default function AuthScreen() {
           </Link>
         </List>
         <List>
+          <Link to="/Approvals">
+            <ListItem disablePadding>
+              <ListItemButton>
+                <ListItemIcon>
+                  <VerifiedIcon />
+                </ListItemIcon>
+                <ListItemText primary="Approvals" />
+              </ListItemButton>
+            </ListItem>
+          </Link>
+        </List>
+        <List>
           <Link to="/test">
             <ListItem disablePadding>
               <ListItemButton>
@@ -243,6 +256,7 @@ export default function AuthScreen() {
             <Route path="/how-to-install" element={<InstallScreen />} />
             <Route path="/delete" element={<DeleteScreen />} />
             <Route path="/users" element={<UsersScreen />} />
+            <Route path="/approvals" element={<ApprovalsSCreen />} />
           </Routes>
         </div>
       </Main>

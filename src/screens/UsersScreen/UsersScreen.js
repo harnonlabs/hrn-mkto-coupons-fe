@@ -39,7 +39,6 @@ export default function UsersSCreen() {
     getData();
   }, []);
   React.useEffect(() => {
-    console.log('data', data.length);
     if (data.length > 0) {
       setDataFlag(true);
     }
@@ -78,7 +77,6 @@ export default function UsersSCreen() {
           };
         });
 
-        console.log('us', finalArr);
         setData(finalArr);
       }
     } catch (err) {
@@ -109,7 +107,7 @@ export default function UsersSCreen() {
 
   return (
     <div style={{ height: 400, width: '100%' }}>
-      {dataFlag && <p>({data[0].email})</p>}
+      {/* {dataFlag && <p>({data[0].email})</p>} */}
       {dataFlag && (
         <Box key={`dg-user`}>
           <Typography variant="h4" sx={{ mt: '1rem', textAlign: 'left' }}>

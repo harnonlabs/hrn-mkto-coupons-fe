@@ -1,22 +1,22 @@
-import * as React from "react"
-import Box from "@mui/material/Box"
-import InputLabel from "@mui/material/InputLabel"
-import MenuItem from "@mui/material/MenuItem"
-import FormControl from "@mui/material/FormControl"
-import Select from "@mui/material/Select"
-import { useAuth0 } from "@auth0/auth0-react"
-import { AppContext } from "./../../App"
+import * as React from 'react';
+import Box from '@mui/material/Box';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
+import { useAuth0 } from '@auth0/auth0-react';
+import { AppContext } from './../../App';
 
 export default function PickerCouponsLists({ setter }) {
-  const { user, isAuthenticated, isLoading } = useAuth0()
-  const appContext = React.useContext(AppContext)
-  const [couponsList, setCouponsList] = React.useState()
-  const [selectedCouponList, setSelectedCouponList] = React.useState("")
+  const { user, isAuthenticated, isLoading } = useAuth0();
+  const appContext = React.useContext(AppContext);
+  const [couponsList, setCouponsList] = React.useState();
+  const [selectedCouponList, setSelectedCouponList] = React.useState('');
 
   const handleChange = (event) => {
-    setSelectedCouponList(event.target.value)
-    setter(event.target.value)
-  }
+    setSelectedCouponList(event.target.value);
+    setter(event.target.value);
+  };
 
   React.useEffect(() => {
     async function getData() {
@@ -24,26 +24,32 @@ export default function PickerCouponsLists({ setter }) {
         const request = await fetch(
           `${process.env.REACT_APP_WORKER_URL}/list`,
           {
-            method: "POST",
+            method: 'POST',
             body: JSON.stringify({
               content: { token: appContext.token, email: user.email },
             }),
-            headers: { "content-type": "application/json" },
-          }
-        )
-        const response = await request.json()
+            headers: { 'content-type': 'application/json' },
+          },
+        );
+        const response = await request.json();
+        console.log(
+          'list',
+          response.filter((response) => response.approved === true),
+        );
         if (response) {
-          setCouponsList(response)
+          setCouponsList(
+            response.filter((response) => response.approved === true),
+          );
         }
       } catch (err) {
-        console.log("ERROR!", err)
+        console.log('ERROR!', err);
       }
     }
-    getData()
-  }, [])
+    getData();
+  }, []);
 
   return (
-    <Box sx={{ minWidth: 120, mb: "1rem" }}>
+    <Box sx={{ minWidth: 120, mb: '1rem' }}>
       <FormControl fullWidth>
         <InputLabel id="cooupon-list-label">Select a coupon list</InputLabel>
         <Select
@@ -65,5 +71,5 @@ export default function PickerCouponsLists({ setter }) {
         </Select>
       </FormControl>
     </Box>
-  )
+  );
 }

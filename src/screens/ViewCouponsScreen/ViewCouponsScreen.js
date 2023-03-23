@@ -39,7 +39,12 @@ export default function DataTable() {
         if (response) {
           let finalArr = [];
           const x = response.map((cl) => {
-            return { name: cl.name, key: cl.key, coupons: { ...cl.coupons } };
+            return {
+              name: cl.name,
+              key: cl.key,
+              approved: cl.approved,
+              coupons: { ...cl.coupons },
+            };
           });
           for (let i = 0; i < x.length; i++) {
             let c = x[i]['coupons'];
@@ -49,6 +54,7 @@ export default function DataTable() {
             }
             let final = {
               name: x[i]['name'],
+              approved: x[i]['approved'],
               key: x[i]['key'],
               coupons: result,
             };
@@ -87,17 +93,21 @@ export default function DataTable() {
               <Typography variant="h4" sx={{ mt: '1rem', textAlign: 'left' }}>
                 {cl.name}
               </Typography>
-              <Box sx={{ display: 'flex', mt: 2, mb: 2 }}>
-                <Chip
-                  icon={<ContentCopyIcon />}
-                  label={cl.key}
-                  variant="outlined"
-                  color="success"
-                  onClick={copyToClipboard}
-                  size="small"
-                  sx={{ padding: 1, borderStyle: 'dashed' }}
-                />
-              </Box>
+              {cl.approved ? (
+                <Box sx={{ display: 'flex', mt: 2, mb: 2 }}>
+                  <Chip
+                    icon={<ContentCopyIcon />}
+                    label={cl.key}
+                    variant="outlined"
+                    color="success"
+                    onClick={copyToClipboard}
+                    size="small"
+                    sx={{ padding: 1, borderStyle: 'dashed' }}
+                  />
+                </Box>
+              ) : (
+                <></>
+              )}
               {/* <Typography variant="h6" sx={{ textAlign: "left" }}>
                 {cl.key}
               </Typography> */}

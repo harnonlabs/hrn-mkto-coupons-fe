@@ -169,8 +169,8 @@ function LoadCouponScreen() {
           </form>
           {couponKey && (
             <Box sx={{ mt: '2rem' }}>
-              Your coupon key{' '}
-              <Chip
+              Your coupon key will be shown when the list is approved.{' '}
+              {/* <Chip
                 avatar={<ContentCopyIcon />}
                 label="Copy!"
                 component="a"
@@ -178,7 +178,7 @@ function LoadCouponScreen() {
                 onClick={copyToClipboard}
                 sx={{ padding: '1rem' }}
                 color="primary"
-              />
+              /> */}
               <Box sx={{ mt: '1rem', fontSize: '0.8rem' }}>
                 Save this key. You will need it to enter in Marketo. Take a look
                 at our <Link to="/how-to-install">Install Instructions</Link> to
@@ -186,7 +186,7 @@ function LoadCouponScreen() {
               </Box>
             </Box>
           )}
-          {couponKey && (
+          {/* {couponKey && (
             <Card
               sx={{
                 minWidth: 275,
@@ -197,7 +197,7 @@ function LoadCouponScreen() {
             >
               <span id="key-text">{couponKey}</span>
             </Card>
-          )}
+          )} */}
         </Paper>
       </Box>
     </>
