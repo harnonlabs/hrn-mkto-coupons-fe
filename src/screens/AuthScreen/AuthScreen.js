@@ -30,6 +30,8 @@ import ViewCouponsScreen from '../ViewCouponsScreen/ViewCouponsScreen';
 import InstallScreen from '../InstallScreen/InstallScreen';
 import DeleteScreen from './../DeleteScreen/DeleteScreen';
 import TestCouponsScreen from '../TestCouponsScreen/TestCouponsScreen';
+import AccountScreen from '../AccountScreen/AccountScreen';
+import GlobalUsersScreen from '../GlobalUsersScreen/GlobalUsersScreen';
 import LogoutButton from '../../components/auth0/LogoutButton';
 import { useAuth0 } from '@auth0/auth0-react';
 
@@ -257,6 +259,8 @@ export default function AuthScreen() {
             <Route path="/delete" element={<DeleteScreen />} />
             <Route path="/users" element={<UsersScreen />} />
             <Route path="/approvals" element={<ApprovalsSCreen />} />
+            <Route path="/account" element={<AccountScreen />} />
+            <Route path="/globalusers" element={<GlobalUsersScreen />} />
           </Routes>
         </div>
       </Main>
