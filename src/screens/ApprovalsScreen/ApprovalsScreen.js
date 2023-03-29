@@ -19,6 +19,7 @@ export default function ApprovalsSCreen() {
   const [unauthorized, setUnauthorized] = React.useState(false);
   const columns = [
     { field: 'name', headerName: 'Coupon Name', width: 350 },
+    { field: 'coupons', headerName: '# coupons', width: 80 },
     { field: 'approved', headerName: 'Approved', width: 80 },
     {
       field: 'actions',
@@ -98,10 +99,17 @@ export default function ApprovalsSCreen() {
         },
       );
       const response = await request.json();
+
       if (response) {
+        const userResponse = response.find((item) => item.email === user.email);
+        const filterCompanyUsers = response.filter(
+          (item) => item.companyName === userResponse.companyName,
+        );
+        console.log('response', response);
+        console.log('filterCompanyUsers', filterCompanyUsers);
         let finalArr = [];
         let email = '';
-        const x = response.map((cl) => {
+        const x = filterCompanyUsers.map((cl) => {
           return {
             name: cl.email,
             key: cl.email,
@@ -118,6 +126,7 @@ export default function ApprovalsSCreen() {
               name: value.name,
               approved: value.approved,
               email: email,
+              coupons: Object.keys(value.coupons).length,
             });
           }
           let final = {
@@ -164,17 +173,6 @@ export default function ApprovalsSCreen() {
               <Typography variant="h4" sx={{ mt: '1rem', textAlign: 'left' }}>
                 {cl.name}
               </Typography>
-              <Box sx={{ display: 'flex', mt: 2, mb: 2 }}>
-                <Chip
-                  icon={<ContentCopyIcon />}
-                  label={cl.key}
-                  variant="outlined"
-                  color="success"
-                  onClick={copyToClipboard}
-                  size="small"
-                  sx={{ padding: 1, borderStyle: 'dashed' }}
-                />
-              </Box>
 
               <DataGrid
                 rows={cl.coupons}

@@ -9,7 +9,7 @@ import Snackbar from '@mui/material/Snackbar';
 import EditIcon from '@mui/icons-material/Edit';
 import VerifiedIcon from '@mui/icons-material/Verified';
 
-export default function UsersSCreen() {
+export default function GlobalUsersSCreen() {
   const { user, isLoading } = useAuth0();
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
   const [copiedKey, setCopiedKey] = React.useState('');
@@ -22,7 +22,22 @@ export default function UsersSCreen() {
   React.useEffect(() => {
     setColumna([
       { field: 'email', headerName: 'Email', width: 350 },
+      { field: 'company', headerName: 'Company', width: 100 },
       { field: 'approver', headerName: 'Approver', width: 80 },
+      {
+        field: 'actions',
+        type: 'actions',
+        width: 100,
+        getActions: (params) => [
+          <GridActionsCellItem
+            icon={<VerifiedIcon />}
+            label="SetApprover"
+            onClick={() => {
+              selectApprover(params.row['id']);
+            }}
+          />,
+        ],
+      },
     ]);
   }, [user.email]);
   React.useEffect(() => {
@@ -45,16 +60,14 @@ export default function UsersSCreen() {
             (item) => item.email === user.email,
           );
 
-          setCompanyName(userResponse.companyName);
+          setCompanyName('global Harnon configuration');
           let finalArr = [];
-          const filterCompanyUsers = response.filter(
-            (item) => item.companyName === companyName,
-          );
 
-          finalArr = filterCompanyUsers.map((cl) => {
+          finalArr = response.map((cl) => {
             return {
               id: cl.email,
               email: cl.email,
+              company: cl.companyName,
               approver: cl.approver,
             };
           });

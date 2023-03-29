@@ -6,6 +6,7 @@ import { AppContext } from '../../App';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { ResetTvOutlined } from '@mui/icons-material';
 import Snackbar from '@mui/material/Snackbar';
+import dayjs from 'dayjs';
 
 const columns = [
   { field: 'coupon', headerName: 'Coupon Number', width: 150 },
@@ -50,6 +51,10 @@ export default function DataTable() {
             let c = x[i]['coupons'];
             let result = [];
             for (const [key, value] of Object.entries(c)) {
+              if (value.dateUsed) {
+                const stringDate = new Date(value.dateUsed);
+                value.dateUsed = dayjs(stringDate).format('YYYY-MM-DD');
+              }
               result.push({ id: key, coupon: key, ...value });
             }
             let final = {
@@ -106,7 +111,14 @@ export default function DataTable() {
                   />
                 </Box>
               ) : (
-                <></>
+                <Box sx={{ display: 'flex', mt: 2, mb: 2 }}>
+                  <Typography
+                    variant="h6"
+                    sx={{ mt: '1rem', textAlign: 'left' }}
+                  >
+                    Pending for approval
+                  </Typography>
+                </Box>
               )}
               {/* <Typography variant="h6" sx={{ textAlign: "left" }}>
                 {cl.key}
