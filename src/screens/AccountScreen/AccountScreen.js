@@ -1,24 +1,18 @@
 import * as React from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
-import { DataGrid, GridActionsCellItem } from '@mui/x-data-grid';
-import { Typography, Box, TextField, Button, Paper } from '@mui/material';
+import { Typography } from '@mui/material';
 import { AppContext } from '../../App';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import { ResetTvOutlined } from '@mui/icons-material';
-import Snackbar from '@mui/material/Snackbar';
-import EditIcon from '@mui/icons-material/Edit';
-import VerifiedIcon from '@mui/icons-material/Verified';
 
-export default function AccountScreen() {
-  const { user, isLoading } = useAuth0();
+import Snackbar from '@mui/material/Snackbar';
+
+export default function AccountScreen({ accountData }) {
+  const { user } = useAuth0();
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
-  const [copiedKey, setCopiedKey] = React.useState('');
   const appContext = React.useContext(AppContext);
   const [data, setData] = React.useState([]);
   const [dataFlag, setDataFlag] = React.useState(false);
   const [unauthorized, setUnauthorized] = React.useState(false);
   const [companyName, setCompanyName] = React.useState('');
-  const [isSubmitDone, setIsSubmitDone] = React.useState(false);
 
   React.useEffect(() => {
     async function getUserInfo() {
@@ -43,8 +37,14 @@ export default function AccountScreen() {
 
           if (!userResponse) {
             //  getData();
+            await createUser();
+            accountData(false);
             setDataFlag(true);
           } else {
+            if (userResponse.companyName === '') {
+              setDataFlag(true);
+              accountData(false);
+            }
             setUnauthorized(true);
           }
         }
@@ -64,12 +64,7 @@ export default function AccountScreen() {
     setOpenSnackbar(false);
   };
 
-  const setCompany = (name) => {
-    setCompanyName(name);
-  };
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
+  const createUser = async () => {
     try {
       const request = await fetch(
         `${process.env.REACT_APP_WORKER_URL}/createUser`,
@@ -79,15 +74,15 @@ export default function AccountScreen() {
             content: {
               email: user.email,
               token: appContext.token,
-              companyName,
+              companyName: '',
             },
           }),
           headers: { 'content-type': 'application/json' },
         },
       );
       const response = await request.json();
-
-      setIsSubmitDone(true);
+      console.log('created response', response);
+      //setIsSubmitDone(true);
       return response;
     } catch (err) {
       console.log('ERROR!', err);
@@ -99,54 +94,14 @@ export default function AccountScreen() {
     <div style={{ height: 400, width: '100%' }}>
       {dataFlag && (
         <>
+          {' '}
           <Typography variant="h4" sx={{ mt: 2, mb: 2 }}>
-            Create user
+            User created, please wait a couple of hours until it is validated
+            and approved.
           </Typography>
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-          >
-            <Paper
-              sx={{
-                width: '35%',
-                padding: '2rem',
-              }}
-              elevation={4}
-            >
-              <Box>
-                <form>
-                  <Box>
-                    <TextField
-                      required
-                      id="outlined-required"
-                      label="Company Name"
-                      sx={{ mb: '1rem' }}
-                      onChange={(e) => setCompany(e.target.value)}
-                    />
-                  </Box>
-                  <Button
-                    variant="contained"
-                    onClick={handleSubmit}
-                    disabled={isSubmitDone}
-                  >
-                    {isSubmitDone ? 'User succesfully created' : 'Create User!'}
-                  </Button>
-                </form>
-              </Box>
-            </Paper>
-          </Box>
         </>
       )}
-      {/* {unauthorized && (
-        <Box>
-          <Typography variant="h4" sx={{ mt: '1rem', textAlign: 'left' }}>
-            {'please do stuff'}
-          </Typography>
-        </Box>
-      )} */}
+
       <Snackbar
         open={openSnackbar}
         autoHideDuration={1000}

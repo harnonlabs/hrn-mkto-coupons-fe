@@ -89,6 +89,7 @@ export default function AuthScreen() {
   const theme = useTheme();
   const { user, isAuthenticated, isLoading } = useAuth0();
   const [open, setOpen] = React.useState(false);
+  const [accountData, setAccountData] = React.useState(true);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -97,7 +98,9 @@ export default function AuthScreen() {
   const handleDrawerClose = () => {
     setOpen(false);
   };
-
+  const handleAccountData = (data) => {
+    setAccountData(data);
+  };
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
@@ -105,15 +108,17 @@ export default function AuthScreen() {
         <Toolbar>
           <Grid container spacing={2}>
             <Grid item xs={3} sx={{ display: 'flex', alignItems: 'center' }}>
-              <IconButton
-                color="inherit"
-                aria-label="open drawer"
-                onClick={handleDrawerOpen}
-                edge="start"
-                sx={{ mr: 2, ...(open && { display: 'none' }) }}
-              >
-                <MenuIcon />
-              </IconButton>
+              {accountData && (
+                <IconButton
+                  color="inherit"
+                  aria-label="open drawer"
+                  onClick={handleDrawerOpen}
+                  edge="start"
+                  sx={{ mr: 2, ...(open && { display: 'none' }) }}
+                >
+                  <MenuIcon />
+                </IconButton>
+              )}
               <Box sx={{ mr: 2 }}>
                 <img src={H} width="40" alt="Harnon.co" />
               </Box>
@@ -259,7 +264,10 @@ export default function AuthScreen() {
             <Route path="/delete" element={<DeleteScreen />} />
             <Route path="/users" element={<UsersScreen />} />
             <Route path="/approvals" element={<ApprovalsSCreen />} />
-            <Route path="/account" element={<AccountScreen />} />
+            <Route
+              path="/account"
+              element={<AccountScreen accountData={handleAccountData} />}
+            />
             <Route path="/globalusers" element={<GlobalUsersScreen />} />
           </Routes>
         </div>

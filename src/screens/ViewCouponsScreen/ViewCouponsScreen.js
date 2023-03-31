@@ -11,7 +11,7 @@ import dayjs from 'dayjs';
 const columns = [
   { field: 'coupon', headerName: 'Coupon Number', width: 150 },
   { field: 'isUsed', headerName: 'Is Used?', width: 80 },
-  { field: 'dateUsed', headerName: 'Date Used', width: 150 },
+  { field: 'dateUsed', headerName: 'Date Used', width: 200 },
   { field: 'email', headerName: 'email', width: 250 },
 ];
 
@@ -53,7 +53,9 @@ export default function DataTable() {
             for (const [key, value] of Object.entries(c)) {
               if (value.dateUsed) {
                 const stringDate = new Date(value.dateUsed);
-                value.dateUsed = dayjs(stringDate).format('YYYY-MM-DD');
+                value.dateUsed = dayjs(stringDate).format(
+                  'YYYY-MM-DD hh:mm:ss',
+                );
               }
               result.push({ id: key, coupon: key, ...value });
             }
