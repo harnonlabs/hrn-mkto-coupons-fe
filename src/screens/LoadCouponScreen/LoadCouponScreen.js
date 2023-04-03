@@ -16,6 +16,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { useAuth0 } from '@auth0/auth0-react';
 import { AppContext } from '../../App';
 import { Link } from 'react-router-dom';
+import { useCheckUserValidity } from '../utils/useCheckUserValidity';
 
 function copyToClipboard(e) {
   let copyText = document.getElementById('key-text');
@@ -33,6 +34,14 @@ function LoadCouponScreen() {
   const [csvToJSON, setCsvToJSON] = React.useState([]);
   const [isSubmitDone, setIsSubmitDone] = React.useState(false);
   const [isAnon, setIsAnon] = React.useState(false);
+  const [CheckUserValidity] = useCheckUserValidity();
+
+  React.useEffect(() => {
+    async function CheckUser() {
+      await CheckUserValidity(user.email, appContext.token);
+    }
+    CheckUser();
+  }, []);
 
   const csvToObj = (string) => {
     const csvRows = string.slice(string.indexOf('\n') + 1).split('\n');

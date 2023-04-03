@@ -8,6 +8,7 @@ import { ResetTvOutlined } from '@mui/icons-material';
 import Snackbar from '@mui/material/Snackbar';
 import EditIcon from '@mui/icons-material/Edit';
 import VerifiedIcon from '@mui/icons-material/Verified';
+import { useCheckUserValidity } from '../utils/useCheckUserValidity';
 
 export default function ApprovalsSCreen() {
   const { user, isLoading } = useAuth0();
@@ -36,6 +37,14 @@ export default function ApprovalsSCreen() {
       ],
     },
   ];
+  const [CheckUserValidity] = useCheckUserValidity();
+
+  React.useEffect(() => {
+    async function CheckUser() {
+      await CheckUserValidity(user.email, appContext.token);
+    }
+    CheckUser();
+  }, []);
 
   React.useEffect(() => {
     async function getUserInfo() {

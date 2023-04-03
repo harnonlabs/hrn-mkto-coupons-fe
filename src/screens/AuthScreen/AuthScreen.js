@@ -38,6 +38,9 @@ import { useAuth0 } from '@auth0/auth0-react';
 import H from './../../img/H.svg';
 import UsersScreen from '../UsersScreen/UsersScreen';
 import ApprovalsSCreen from '../ApprovalsScreen/ApprovalsScreen';
+import { useCheckUserRole } from '../utils/useCheckUserRole';
+import { AppContext } from '../../App';
+
 const drawerWidth = 240;
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
@@ -90,6 +93,40 @@ export default function AuthScreen() {
   const { user, isAuthenticated, isLoading } = useAuth0();
   const [open, setOpen] = React.useState(false);
   const [accountData, setAccountData] = React.useState(true);
+  const [checkEmailRole] = useCheckUserRole();
+  const appContext = React.useContext(AppContext);
+  const [role, setRole] = React.useState(0);
+
+  React.useEffect(() => {
+    async function CheckUser() {
+      try {
+        const request = await fetch(
+          `${process.env.REACT_APP_WORKER_URL}/listUsers`,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              content: { token: appContext.token, email: user.email },
+            }),
+            headers: { 'content-type': 'application/json' },
+          },
+        );
+        const response = await request.json();
+
+        if (response) {
+          const userResponse = response.find(
+            (item) => item.email === user.email,
+          );
+          if (userResponse) {
+            console.log(userResponse.role);
+            setRole(userResponse.role);
+          }
+        }
+      } catch (err) {
+        console.log('ERROR!', err);
+      }
+    }
+    CheckUser();
+  }, []);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -240,16 +277,20 @@ export default function AuthScreen() {
           </Link>
         </List>
         <List>
-          <Link to="/delete">
-            <ListItem disablePadding>
-              <ListItemButton>
-                <ListItemIcon>
-                  <DeleteIcon />
-                </ListItemIcon>
-                <ListItemText primary="Delete" />
-              </ListItemButton>
-            </ListItem>
-          </Link>
+          {role === 3 ? (
+            <Link to="/delete">
+              <ListItem disablePadding>
+                <ListItemButton>
+                  <ListItemIcon>
+                    <DeleteIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Delete" />
+                </ListItemButton>
+              </ListItem>
+            </Link>
+          ) : (
+            <></>
+          )}
         </List>
       </Drawer>
       <Main open={open}>
