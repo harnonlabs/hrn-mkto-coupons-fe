@@ -12,7 +12,7 @@ function copyToClipboard(e) {
 export default function InstallScreen() {
   return (
     <>
-      <Typography variant="h4" sx={{ mt: 2, mb: 2 }}>
+      <Typography variant="h4" sx={{ mt: 2, mb: 2, textAlign: "left" }}>
         Install in Marketo
       </Typography>
       <Box
@@ -24,7 +24,7 @@ export default function InstallScreen() {
       >
         <Paper
           sx={{
-            width: "35%",
+            width: "70%",
             padding: "2rem",
           }}
           elevation={4}
