@@ -42,7 +42,7 @@ export default function DataTable() {
     if (dataApprover.length > 0) {
       setColumns([
         { field: "coupons", headerName: "coupons", width: 80 },
-        { field: "approved", headerName: "Approved", width: 80 },
+        // { field: "approved", headerName: "Approved", width: 80 },
         { field: "isUsed", headerName: "Is Used?", width: 80 },
         { field: "dateUsed", headerName: "Date Used", width: 200 },
         { field: "email", headerName: "email", width: 250 },
@@ -315,12 +315,13 @@ export default function DataTable() {
                     </Box>
                   ) : (
                     <Box sx={{ display: "flex", mt: 2, mb: 2 }}>
-                      <Typography
-                        variant="h6"
-                        sx={{ mt: "1rem", textAlign: "left" }}
-                      >
-                        Pending for approval
-                      </Typography>
+                      <Chip
+                        label="Pending for approval"
+                        variant="outlined"
+                        color="warning"
+                        size="small"
+                        sx={{ padding: 1, borderStyle: "dashed" }}
+                      />
                     </Box>
                   )}
 
