@@ -9,6 +9,7 @@ import VerifiedIcon from '@mui/icons-material/Verified';
 import Modal from '@mui/material/Modal';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
+import { useCheckUserRole } from '../utils/useCheckUserRole';
 
 export default function GlobalUsersSCreen() {
   const { user } = useAuth0();
@@ -17,6 +18,7 @@ export default function GlobalUsersSCreen() {
   const [data, setData] = React.useState([]);
   const [dataFlag, setDataFlag] = React.useState(false);
   const [companyName, setCompanyName] = React.useState('');
+  const [companyNameInput, setCompanyNameInput] = React.useState('');
   const [columna, setColumna] = React.useState([]);
   const [isSubmitDone, setIsSubmitDone] = React.useState(false);
   const [companyList, setCompanyList] = React.useState([]);
@@ -26,6 +28,8 @@ export default function GlobalUsersSCreen() {
   const handleCloseModalUserCompany = () => setOpenModalUserCompany(false);
   const [selectedCompany, setSelectedCompany] = React.useState('');
   const [selectedEmail, setSelectedEmail] = React.useState('');
+  const [checkEmailRole] = useCheckUserRole();
+
   const style = {
     position: 'absolute',
     top: '50%',
@@ -37,6 +41,14 @@ export default function GlobalUsersSCreen() {
     boxShadow: 24,
     p: 4,
   };
+
+  React.useEffect(() => {
+    async function CheckUser() {
+      await checkEmailRole(user.email, appContext.token);
+    }
+    CheckUser();
+  }, []);
+
   React.useEffect(() => {
     if (companyList.length > 0) {
       setCompanyFlag(true);
@@ -202,6 +214,7 @@ export default function GlobalUsersSCreen() {
       );
       const response = await request.json();
       setCompanyName('');
+      setCompanyNameInput('');
       setIsSubmitDone(true);
       getCompanyList();
       return response;
@@ -236,6 +249,7 @@ export default function GlobalUsersSCreen() {
   };
   const setCompany = (name) => {
     setCompanyName(name);
+    setCompanyNameInput(name);
     setIsSubmitDone(false);
   };
   const selectCompany = async (email) => {
@@ -301,6 +315,7 @@ export default function GlobalUsersSCreen() {
                     id="outlined-required"
                     label="Company Name"
                     sx={{ mb: '1rem' }}
+                    value={companyNameInput}
                     onChange={(e) => setCompany(e.target.value)}
                   />
                 </Box>

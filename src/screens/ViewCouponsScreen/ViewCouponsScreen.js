@@ -7,13 +7,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { ResetTvOutlined } from '@mui/icons-material';
 import Snackbar from '@mui/material/Snackbar';
 import dayjs from 'dayjs';
-
-const columns = [
-  { field: 'coupon', headerName: 'Coupon Number', width: 150 },
-  { field: 'isUsed', headerName: 'Is Used?', width: 80 },
-  { field: 'dateUsed', headerName: 'Date Used', width: 200 },
-  { field: 'email', headerName: 'email', width: 250 },
-];
+import { useCheckUserValidity } from '../utils/useCheckUserValidity';
 
 export default function DataTable() {
   const { user, isLoading } = useAuth0();
@@ -21,12 +15,46 @@ export default function DataTable() {
   const [copiedKey, setCopiedKey] = React.useState('');
   const appContext = React.useContext(AppContext);
   const [data, setData] = React.useState([]);
+  const [dataApprover, setDataApprover] = React.useState([]);
+  const [CheckUserValidity] = useCheckUserValidity();
+  const [flagApprover, setFlagApprover] = React.useState(false);
+  const [flagUser, setFlagUser] = React.useState(false);
+  const [columns, setColumns] = React.useState([]);
 
   React.useEffect(() => {
-    async function getData() {
+    async function CheckUser() {
+      await CheckUserValidity(user.email, appContext.token);
+    }
+    CheckUser();
+  }, []);
+  React.useEffect(() => {
+    if (data.length > 0) {
+      setColumns([
+        { field: 'coupon', headerName: 'Coupon Number', width: 150 },
+        { field: 'isUsed', headerName: 'Is Used?', width: 80 },
+        { field: 'dateUsed', headerName: 'Date Used', width: 200 },
+        { field: 'email', headerName: 'email', width: 250 },
+      ]);
+      setFlagUser(true);
+    }
+  }, [data]);
+  React.useEffect(() => {
+    if (dataApprover.length > 0) {
+      setColumns([
+        { field: 'coupons', headerName: 'coupons', width: 80 },
+        { field: 'approved', headerName: 'Approved', width: 80 },
+        { field: 'isUsed', headerName: 'Is Used?', width: 80 },
+        { field: 'dateUsed', headerName: 'Date Used', width: 200 },
+        { field: 'email', headerName: 'email', width: 250 },
+      ]);
+      setFlagApprover(true);
+    }
+  }, [dataApprover]);
+  React.useEffect(() => {
+    async function getUserInfo() {
       try {
         const request = await fetch(
-          `${process.env.REACT_APP_WORKER_URL}/view`,
+          `${process.env.REACT_APP_WORKER_URL}/listUsers`,
           {
             method: 'POST',
             body: JSON.stringify({
@@ -38,44 +66,154 @@ export default function DataTable() {
         const response = await request.json();
 
         if (response) {
-          let finalArr = [];
-          const x = response.map((cl) => {
-            return {
-              name: cl.name,
-              key: cl.key,
-              approved: cl.approved,
-              coupons: { ...cl.coupons },
-            };
-          });
-          for (let i = 0; i < x.length; i++) {
-            let c = x[i]['coupons'];
-            let result = [];
-            for (const [key, value] of Object.entries(c)) {
-              if (value.dateUsed) {
-                const stringDate = new Date(value.dateUsed);
-                value.dateUsed = dayjs(stringDate).format(
-                  'YYYY-MM-DD hh:mm:ss',
-                );
-              }
-              result.push({ id: key, coupon: key, ...value });
-            }
-            let final = {
-              name: x[i]['name'],
-              approved: x[i]['approved'],
-              key: x[i]['key'],
-              coupons: result,
-            };
-            finalArr.push(final);
-          }
+          const userResponse = response.find(
+            (item) => item.email === user.email,
+          );
 
-          setData(finalArr);
+          if (userResponse.approver === true) {
+            getDataApprover();
+          } else {
+            getDataUser();
+          }
         }
       } catch (err) {
         console.log('ERROR!', err);
       }
     }
-    getData();
+    getUserInfo();
   }, []);
+  async function getDataApprover() {
+    try {
+      const request = await fetch(
+        `${process.env.REACT_APP_WORKER_URL}/listApprovals`,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            content: { token: appContext.token, email: user.email },
+          }),
+          headers: { 'content-type': 'application/json' },
+        },
+      );
+      const response = await request.json();
+
+      if (response) {
+        const userResponse = response.find((item) => item.email === user.email);
+        const filterCompanyUsers = response.filter(
+          (item) => item.companyName === userResponse.companyName,
+        );
+        let finalArr = [];
+        let email = '';
+        const x = filterCompanyUsers.map((cl) => {
+          return {
+            name: cl.email,
+            key: cl.email,
+            coupons: { ...cl.coupons },
+          };
+        });
+        for (let i = 0; i < x.length; i++) {
+          email = x[i].name;
+          let c = x[i]['coupons'];
+          let mid = [];
+          let result = [];
+          let num = 0;
+          for (const [key, value] of Object.entries(c)) {
+            num = Math.floor(Math.random() * 10000);
+
+            mid = [];
+            for (const [keyCoupon, valueCoupon] of Object.entries(
+              Object.keys(value.coupons),
+            )) {
+              if (value.coupons[valueCoupon].dateUsed) {
+                const stringDate = new Date(
+                  value.coupons[valueCoupon].dateUsed,
+                );
+                value.coupons[valueCoupon].dateUsed = dayjs(stringDate).format(
+                  'YYYY-MM-DD hh:mm:ss',
+                );
+              }
+
+              mid.push({
+                id: value.key + valueCoupon + num,
+                coupons: valueCoupon,
+                isUsed: value.coupons[valueCoupon].isUsed,
+                dateUsed: value.coupons[valueCoupon].dateUsed
+                  ? dayjs(value.coupons[valueCoupon].dateUsed).format(
+                      'YYYY-MM-DD hh:mm:ss',
+                    )
+                  : null,
+                email: value.coupons[valueCoupon].email,
+              });
+            }
+
+            result.push({
+              id: value.key + value.name + num,
+              name: value.name,
+              key: value.approved ? value.key : null,
+              approved: value.approved,
+              email: email,
+              coupons: mid,
+            });
+          }
+          let final = {
+            name: x[i]['name'],
+            key: x[i]['key'],
+            coupons: result,
+          };
+          finalArr.push(final);
+        }
+
+        setDataApprover(finalArr);
+      }
+    } catch (err) {
+      console.log('ERROR!', err);
+    }
+  }
+  async function getDataUser() {
+    try {
+      const request = await fetch(`${process.env.REACT_APP_WORKER_URL}/view`, {
+        method: 'POST',
+        body: JSON.stringify({
+          content: { token: appContext.token, email: user.email },
+        }),
+        headers: { 'content-type': 'application/json' },
+      });
+      const response = await request.json();
+
+      if (response) {
+        let finalArr = [];
+        const x = response.map((cl) => {
+          return {
+            name: cl.name,
+            key: cl.key,
+            approved: cl.approved,
+            coupons: { ...cl.coupons },
+          };
+        });
+        for (let i = 0; i < x.length; i++) {
+          let c = x[i]['coupons'];
+          let result = [];
+          for (const [key, value] of Object.entries(c)) {
+            if (value.dateUsed) {
+              const stringDate = new Date(value.dateUsed);
+              value.dateUsed = dayjs(stringDate).format('YYYY-MM-DD hh:mm:ss');
+            }
+            result.push({ id: key, coupon: key, ...value });
+          }
+          let final = {
+            name: x[i]['name'],
+            approved: x[i]['approved'],
+            key: x[i]['key'],
+            coupons: result,
+          };
+          finalArr.push(final);
+        }
+
+        setData(finalArr);
+      }
+    } catch (err) {
+      console.log('ERROR!', err);
+    }
+  }
 
   const copyToClipboard = (e) => {
     let copyText = e.target;
@@ -93,10 +231,10 @@ export default function DataTable() {
 
   return (
     <div style={{ height: 400, width: '100%' }}>
-      {data &&
+      {flagUser &&
         data.map((cl, idx) => {
           return (
-            <Box key={`dg-${idx}`}>
+            <Box key={`dg-${idx}-${cl.name}`}>
               <Typography variant="h4" sx={{ mt: '1rem', textAlign: 'left' }}>
                 {cl.name}
               </Typography>
@@ -133,6 +271,68 @@ export default function DataTable() {
                 autoHeight
                 // checkboxSelection
               />
+            </Box>
+          );
+        })}
+      {flagApprover &&
+        dataApprover.map((cl, idx) => {
+          return (
+            <Box key={`dg-${idx}`}>
+              <Typography variant="h4" sx={{ mt: '1rem', textAlign: 'left' }}>
+                {cl.name}
+              </Typography>
+              {cl.coupons.length <= 0 ? (
+                <Typography sx={{ mt: '1rem', textAlign: 'left' }}>
+                  No coupons created
+                </Typography>
+              ) : (
+                <></>
+              )}
+              {cl.coupons.map((item) => (
+                <div key={`dx${item.name}`}>
+                  <Typography
+                    variant="h4"
+                    sx={{ mt: '1rem', textAlign: 'left' }}
+                  >
+                    {item.name}
+                  </Typography>
+                  {item.approved ? (
+                    <Box sx={{ display: 'flex', mt: 2, mb: 2 }}>
+                      <Chip
+                        icon={<ContentCopyIcon />}
+                        label={item.key}
+                        variant="outlined"
+                        color="success"
+                        onClick={copyToClipboard}
+                        size="small"
+                        sx={{ padding: 1, borderStyle: 'dashed' }}
+                      />
+                    </Box>
+                  ) : (
+                    <Box sx={{ display: 'flex', mt: 2, mb: 2 }}>
+                      <Typography
+                        variant="h6"
+                        sx={{ mt: '1rem', textAlign: 'left' }}
+                      >
+                        Pending for approval
+                      </Typography>
+                    </Box>
+                  )}
+
+                  <DataGrid
+                    rows={item.coupons}
+                    columns={columns}
+                    pageSize={50}
+                    rowsPerPageOptions={[50]}
+                    autoHeight
+                    initialState={{
+                      pinnedColumns: {
+                        right: ['actions'],
+                      },
+                    }}
+                  />
+                </div>
+              ))}
             </Box>
           );
         })}
