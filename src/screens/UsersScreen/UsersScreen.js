@@ -1,20 +1,27 @@
-import * as React from "react"
-import { useAuth0 } from "@auth0/auth0-react"
-import { DataGrid } from "@mui/x-data-grid"
-import { Typography, Box } from "@mui/material"
-import { AppContext } from "../../App"
-
-import Snackbar from "@mui/material/Snackbar"
+import * as React from 'react';
+import { useAuth0 } from '@auth0/auth0-react';
+import { DataGrid } from '@mui/x-data-grid';
+import { Typography, Box } from '@mui/material';
+import { AppContext } from '../../App';
+import Snackbar from '@mui/material/Snackbar';
+import { useCheckUserValidity } from '../utils/useCheckUserValidity';
 
 export default function UsersSCreen() {
   const { user } = useAuth0()
   const [openSnackbar, setOpenSnackbar] = React.useState(false)
+  const appContext = React.useContext(AppContext);
+  const [data, setData] = React.useState([]);
+  const [dataFlag, setDataFlag] = React.useState(false);
+  const [companyName, setCompanyName] = React.useState('');
+  const [columna, setColumna] = React.useState([]);
+  const [CheckUserValidity] = useCheckUserValidity();
 
-  const appContext = React.useContext(AppContext)
-  const [data, setData] = React.useState([])
-  const [dataFlag, setDataFlag] = React.useState(false)
-  const [companyName, setCompanyName] = React.useState("")
-  const [columna, setColumna] = React.useState([])
+  React.useEffect(() => {
+    async function CheckUser() {
+      await CheckUserValidity(user.email, appContext.token);
+    }
+    CheckUser();
+  }, []);
 
   React.useEffect(() => {
     setColumna([

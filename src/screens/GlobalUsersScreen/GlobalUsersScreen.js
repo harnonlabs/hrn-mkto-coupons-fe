@@ -1,31 +1,35 @@
-import * as React from "react"
-import { useAuth0 } from "@auth0/auth0-react"
-import { DataGrid, GridActionsCellItem } from "@mui/x-data-grid"
-import { Typography, Box, Paper, TextField, Button } from "@mui/material"
-import { AppContext } from "../../App"
-import Snackbar from "@mui/material/Snackbar"
-import EditIcon from "@mui/icons-material/Edit"
-import VerifiedIcon from "@mui/icons-material/Verified"
-import Modal from "@mui/material/Modal"
-import Select from "@mui/material/Select"
-import MenuItem from "@mui/material/MenuItem"
+import * as React from 'react';
+import { useAuth0 } from '@auth0/auth0-react';
+import { DataGrid, GridActionsCellItem } from '@mui/x-data-grid';
+import { Typography, Box, Paper, TextField, Button } from '@mui/material';
+import { AppContext } from '../../App';
+import Snackbar from '@mui/material/Snackbar';
+import EditIcon from '@mui/icons-material/Edit';
+import VerifiedIcon from '@mui/icons-material/Verified';
+import Modal from '@mui/material/Modal';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import { useCheckUserRole } from '../utils/useCheckUserRole';
 
 export default function GlobalUsersSCreen() {
-  const { user } = useAuth0()
-  const [openSnackbar, setOpenSnackbar] = React.useState(false)
-  const appContext = React.useContext(AppContext)
-  const [data, setData] = React.useState([])
-  const [dataFlag, setDataFlag] = React.useState(false)
-  const [companyName, setCompanyName] = React.useState("")
-  const [columna, setColumna] = React.useState([])
-  const [isSubmitDone, setIsSubmitDone] = React.useState(false)
-  const [companyList, setCompanyList] = React.useState([])
-  const [companyFlag, setCompanyFlag] = React.useState(false)
-  const [openModalUserCompany, setOpenModalUserCompany] = React.useState(false)
-  const handleOpenModalUserCompany = () => setOpenModalUserCompany(true)
-  const handleCloseModalUserCompany = () => setOpenModalUserCompany(false)
-  const [selectedCompany, setSelectedCompany] = React.useState("")
-  const [selectedEmail, setSelectedEmail] = React.useState("")
+  const { user } = useAuth0();
+  const [openSnackbar, setOpenSnackbar] = React.useState(false);
+  const appContext = React.useContext(AppContext);
+  const [data, setData] = React.useState([]);
+  const [dataFlag, setDataFlag] = React.useState(false);
+  const [companyName, setCompanyName] = React.useState('');
+  const [companyNameInput, setCompanyNameInput] = React.useState('');
+  const [columna, setColumna] = React.useState([]);
+  const [isSubmitDone, setIsSubmitDone] = React.useState(false);
+  const [companyList, setCompanyList] = React.useState([]);
+  const [companyFlag, setCompanyFlag] = React.useState(false);
+  const [openModalUserCompany, setOpenModalUserCompany] = React.useState(false);
+  const handleOpenModalUserCompany = () => setOpenModalUserCompany(true);
+  const handleCloseModalUserCompany = () => setOpenModalUserCompany(false);
+  const [selectedCompany, setSelectedCompany] = React.useState('');
+  const [selectedEmail, setSelectedEmail] = React.useState('');
+  const [checkEmailRole] = useCheckUserRole();
+
   const style = {
     position: "absolute",
     top: "50%",
@@ -36,7 +40,15 @@ export default function GlobalUsersSCreen() {
     border: "2px solid #000",
     boxShadow: 24,
     p: 4,
-  }
+  };
+
+  React.useEffect(() => {
+    async function CheckUser() {
+      await checkEmailRole(user.email, appContext.token);
+    }
+    CheckUser();
+  }, []);
+
   React.useEffect(() => {
     if (companyList.length > 0) {
       setCompanyFlag(true)
@@ -197,14 +209,15 @@ export default function GlobalUsersSCreen() {
               companyName,
             },
           }),
-          headers: { "content-type": "application/json" },
-        }
-      )
-      const response = await request.json()
-      setCompanyName("")
-      setIsSubmitDone(true)
-      getCompanyList()
-      return response
+          headers: { 'content-type': 'application/json' },
+        },
+      );
+      const response = await request.json();
+      setCompanyName('');
+      setCompanyNameInput('');
+      setIsSubmitDone(true);
+      getCompanyList();
+      return response;
     } catch (err) {
       console.log("ERROR!", err)
     }
@@ -235,9 +248,11 @@ export default function GlobalUsersSCreen() {
     }
   }
   const setCompany = (name) => {
-    setCompanyName(name)
-    setIsSubmitDone(false)
-  }
+    setCompanyName(name);
+    setCompanyNameInput(name);
+    setIsSubmitDone(false);
+  };
+
   const selectCompany = async (email) => {
     setSelectedEmail(email)
     handleOpenModalUserCompany()
@@ -300,7 +315,8 @@ export default function GlobalUsersSCreen() {
                     required
                     id="outlined-required"
                     label="Company Name"
-                    sx={{ mb: "1rem" }}
+                    sx={{ mb: '1rem' }}
+                    value={companyNameInput}
                     onChange={(e) => setCompany(e.target.value)}
                   />
                 </Box>

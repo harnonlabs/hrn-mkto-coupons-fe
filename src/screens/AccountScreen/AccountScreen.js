@@ -11,7 +11,6 @@ export default function AccountScreen({ accountData }) {
   const appContext = React.useContext(AppContext);
   const [data, setData] = React.useState([]);
   const [dataFlag, setDataFlag] = React.useState(false);
-  const [unauthorized, setUnauthorized] = React.useState(false);
   const [companyName, setCompanyName] = React.useState('');
 
   React.useEffect(() => {
@@ -35,17 +34,11 @@ export default function AccountScreen({ accountData }) {
           );
           setDataFlag(false);
 
-          if (!userResponse) {
+          if (!userResponse || userResponse.companyName === '') {
             //  getData();
             await createUser();
             accountData(false);
             setDataFlag(true);
-          } else {
-            if (userResponse.companyName === '') {
-              setDataFlag(true);
-              accountData(false);
-            }
-            setUnauthorized(true);
           }
         }
       } catch (err) {

@@ -1,13 +1,14 @@
-import * as React from "react"
-import { useAuth0 } from "@auth0/auth0-react"
-import { DataGrid, GridActionsCellItem } from "@mui/x-data-grid"
-import { Typography, Box, Chip } from "@mui/material"
-import { AppContext } from "../../App"
-import ContentCopyIcon from "@mui/icons-material/ContentCopy"
-import { ResetTvOutlined } from "@mui/icons-material"
-import Snackbar from "@mui/material/Snackbar"
-import EditIcon from "@mui/icons-material/Edit"
-import VerifiedIcon from "@mui/icons-material/Verified"
+import * as React from 'react';
+import { useAuth0 } from '@auth0/auth0-react';
+import { DataGrid, GridActionsCellItem } from '@mui/x-data-grid';
+import { Typography, Box, Chip } from '@mui/material';
+import { AppContext } from '../../App';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import { ResetTvOutlined } from '@mui/icons-material';
+import Snackbar from '@mui/material/Snackbar';
+import EditIcon from '@mui/icons-material/Edit';
+import VerifiedIcon from '@mui/icons-material/Verified';
+import { useCheckUserValidity } from '../utils/useCheckUserValidity';
 
 export default function ApprovalsSCreen() {
   const { user, isLoading } = useAuth0()
@@ -36,7 +37,15 @@ export default function ApprovalsSCreen() {
         />,
       ],
     },
-  ]
+  ];
+  const [CheckUserValidity] = useCheckUserValidity();
+
+  React.useEffect(() => {
+    async function CheckUser() {
+      await CheckUserValidity(user.email, appContext.token);
+    }
+    CheckUser();
+  }, []);
 
   React.useEffect(() => {
     async function getUserInfo() {
