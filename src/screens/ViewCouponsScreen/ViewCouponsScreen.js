@@ -56,14 +56,14 @@ export default function DataTable() {
         const request = await fetch(
           `${process.env.REACT_APP_WORKER_URL}/listUsers`,
           {
-            method: 'POST',
+            method: "POST",
             body: JSON.stringify({
               content: { token: appContext.token, email: user.email },
             }),
-            headers: { 'content-type': 'application/json' },
-          },
-        );
-        const response = await request.json();
+            headers: { "content-type": "application/json" },
+          }
+        )
+        const response = await request.json()
 
         if (response) {
           const userResponse = response.find(
@@ -216,21 +216,24 @@ export default function DataTable() {
   }
 
   const copyToClipboard = (e) => {
-    let copyText = e.target;
+    let copyText = e.target
 
-    navigator.clipboard.writeText(copyText.textContent);
-    setCopiedKey(copyText.textContent);
-    setOpenSnackbar(true);
-  };
+    navigator.clipboard.writeText(copyText.textContent)
+    setCopiedKey(copyText.textContent)
+    setOpenSnackbar(true)
+  }
 
   const onCloseSnackbar = () => {
-    setOpenSnackbar(false);
-  };
+    setOpenSnackbar(false)
+  }
 
-  console.log('REACT_APP_WORKER_URL', process.env.REACT_APP_WORKER_URL, 'no');
+  console.log("REACT_APP_WORKER_URL", process.env.REACT_APP_WORKER_URL, "no")
 
   return (
     <div style={{ height: 400, width: '100%' }}>
+    <Typography variant="h4" sx={{ mt: 2, mb: 2, textAlign: "left" }}>
+        My Coupons
+      </Typography>
       {flagUser &&
         data.map((cl, idx) => {
           return (
@@ -239,7 +242,7 @@ export default function DataTable() {
                 {cl.name}
               </Typography>
               {cl.approved ? (
-                <Box sx={{ display: 'flex', mt: 2, mb: 2 }}>
+                <Box sx={{ display: "flex", mt: 2, mb: 2 }}>
                   <Chip
                     icon={<ContentCopyIcon />}
                     label={cl.key}
@@ -247,17 +250,18 @@ export default function DataTable() {
                     color="success"
                     onClick={copyToClipboard}
                     size="small"
-                    sx={{ padding: 1, borderStyle: 'dashed' }}
+                    sx={{ padding: 1, borderStyle: "dashed" }}
                   />
                 </Box>
               ) : (
-                <Box sx={{ display: 'flex', mt: 2, mb: 2 }}>
-                  <Typography
-                    variant="h6"
-                    sx={{ mt: '1rem', textAlign: 'left' }}
-                  >
-                    Pending for approval
-                  </Typography>
+                <Box sx={{ display: "flex", mt: 2, mb: 2 }}>
+                  <Chip
+                    label="Pending for approval"
+                    variant="outlined"
+                    color="warning"
+                    size="small"
+                    sx={{ padding: 1, borderStyle: "dashed" }}
+                  />
                 </Box>
               )}
               {/* <Typography variant="h6" sx={{ textAlign: "left" }}>
@@ -272,7 +276,7 @@ export default function DataTable() {
                 // checkboxSelection
               />
             </Box>
-          );
+          )
         })}
       {flagApprover &&
         dataApprover.map((cl, idx) => {
@@ -343,5 +347,5 @@ export default function DataTable() {
         message={`Key copied to clipboard!`}
       />
     </div>
-  );
+  )
 }

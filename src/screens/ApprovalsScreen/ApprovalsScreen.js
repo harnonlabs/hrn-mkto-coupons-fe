@@ -11,27 +11,28 @@ import VerifiedIcon from '@mui/icons-material/Verified';
 import { useCheckUserValidity } from '../utils/useCheckUserValidity';
 
 export default function ApprovalsSCreen() {
-  const { user, isLoading } = useAuth0();
-  const [openSnackbar, setOpenSnackbar] = React.useState(false);
-  const [copiedKey, setCopiedKey] = React.useState('');
-  const appContext = React.useContext(AppContext);
-  const [data, setData] = React.useState([]);
-  const [dataFlag, setDataFlag] = React.useState(false);
-  const [unauthorized, setUnauthorized] = React.useState(false);
+  const { user, isLoading } = useAuth0()
+  const [openSnackbar, setOpenSnackbar] = React.useState(false)
+  const [copiedKey, setCopiedKey] = React.useState("")
+  const appContext = React.useContext(AppContext)
+  const [data, setData] = React.useState([])
+  const [dataFlag, setDataFlag] = React.useState(false)
+  const [unauthorized, setUnauthorized] = React.useState(false)
   const columns = [
-    { field: 'name', headerName: 'Coupon Name', width: 350 },
-    { field: 'coupons', headerName: '# coupons', width: 80 },
-    { field: 'approved', headerName: 'Approved', width: 80 },
+    { field: "name", headerName: "Coupon Name", width: 350 },
+    { field: "coupons", headerName: "Number of coupons", width: 200 },
+    { field: "approved", headerName: "Is Approved?", width: 120 },
     {
-      field: 'actions',
-      type: 'actions',
+      field: "actions",
+      headerName: "Approve",
+      type: "actions",
       width: 100,
       getActions: (params) => [
         <GridActionsCellItem
           icon={<VerifiedIcon />}
           label="SetApprover"
           onClick={() => {
-            selectApprover(params.row['id'], params.row['email']);
+            selectApprover(params.row["id"], params.row["email"])
           }}
         />,
       ],
@@ -52,103 +53,102 @@ export default function ApprovalsSCreen() {
         const request = await fetch(
           `${process.env.REACT_APP_WORKER_URL}/listUsers`,
           {
-            method: 'POST',
+            method: "POST",
             body: JSON.stringify({
               content: { token: appContext.token, email: user.email },
             }),
-            headers: { 'content-type': 'application/json' },
-          },
-        );
-        const response = await request.json();
+            headers: { "content-type": "application/json" },
+          }
+        )
+        const response = await request.json()
 
         if (response) {
           const userResponse = response.find(
-            (item) => item.email === user.email,
-          );
+            (item) => item.email === user.email
+          )
 
           if (userResponse.approver === true) {
-            getData();
+            getData()
           } else {
-            setUnauthorized(true);
+            setUnauthorized(true)
           }
         }
       } catch (err) {
-        console.log('ERROR!', err);
+        console.log("ERROR!", err)
       }
     }
-    getUserInfo();
-  }, []);
+    getUserInfo()
+  }, [])
 
   React.useEffect(() => {
     if (data.length > 0) {
-      setDataFlag(true);
+      setDataFlag(true)
     }
-  }, [data]);
+  }, [data])
   const copyToClipboard = (e) => {
-    let copyText = e.target;
+    let copyText = e.target
 
-    navigator.clipboard.writeText(copyText.textContent);
-    setCopiedKey(copyText.textContent);
-    setOpenSnackbar(true);
-  };
+    navigator.clipboard.writeText(copyText.textContent)
+    setCopiedKey(copyText.textContent)
+    setOpenSnackbar(true)
+  }
 
   const onCloseSnackbar = () => {
-    setOpenSnackbar(false);
-  };
+    setOpenSnackbar(false)
+  }
   async function getData() {
     try {
       const request = await fetch(
         `${process.env.REACT_APP_WORKER_URL}/listApprovals`,
         {
-          method: 'POST',
+          method: "POST",
           body: JSON.stringify({
             content: { token: appContext.token, email: user.email },
           }),
-          headers: { 'content-type': 'application/json' },
-        },
-      );
-      const response = await request.json();
+          headers: { "content-type": "application/json" },
+        }
+      )
+      const response = await request.json()
 
       if (response) {
-        const userResponse = response.find((item) => item.email === user.email);
+        const userResponse = response.find((item) => item.email === user.email)
         const filterCompanyUsers = response.filter(
-          (item) => item.companyName === userResponse.companyName,
-        );
-        console.log('response', response);
-        console.log('filterCompanyUsers', filterCompanyUsers);
-        let finalArr = [];
-        let email = '';
+          (item) => item.companyName === userResponse.companyName
+        )
+
+        let finalArr = []
+        let email = ""
         const x = filterCompanyUsers.map((cl) => {
           return {
             name: cl.email,
             key: cl.email,
             coupons: { ...cl.coupons },
-          };
-        });
+          }
+        })
         for (let i = 0; i < x.length; i++) {
-          email = x[i].name;
-          let c = x[i]['coupons'];
-          let result = [];
+          email = x[i].name
+          let c = x[i]["coupons"]
+          let result = []
           for (const [key, value] of Object.entries(c)) {
             result.push({
               id: value.key,
               name: value.name,
-              approved: value.approved,
+              approved: value.approved ? "Yes" : "No",
               email: email,
               coupons: Object.keys(value.coupons).length,
-            });
+            })
           }
           let final = {
-            name: x[i]['name'],
-            key: x[i]['key'],
+            name: x[i]["name"],
+            key: x[i]["key"],
             coupons: result,
-          };
-          finalArr.push(final);
+          }
+          finalArr.push(final)
         }
-        setData(finalArr);
+        setData(finalArr)
       }
     } catch (err) {
-      console.log('ERROR!', err);
+      console.log("ERROR!", err)
     }
   }
   const selectApprover = async (key, email) => {
@@ -156,30 +156,33 @@ export default function ApprovalsSCreen() {
       const request = await fetch(
         `${process.env.REACT_APP_WORKER_URL}/approveKey`,
         {
-          method: 'POST',
+          method: "POST",
           body: JSON.stringify({
             content: { token: appContext.token, email: email, encodedKey: key },
           }),
-          headers: { 'content-type': 'application/json' },
-        },
-      );
-      const response = await request.json();
+          headers: { "content-type": "application/json" },
+        }
+      )
+      const response = await request.json()
       if (response) {
-        getData();
+        getData()
       }
     } catch (err) {
-      console.log('ERROR!', err);
+      console.log("ERROR!", err)
     }
-  };
-  console.log('REACT_APP_WORKER_URL', process.env.REACT_APP_WORKER_URL, 'no');
+  }
+  console.log("REACT_APP_WORKER_URL", process.env.REACT_APP_WORKER_URL, "no")
 
   return (
-    <div style={{ height: 400, width: '100%' }}>
+    <div style={{ height: 400, width: "100%" }}>
+      <Typography variant="h4" sx={{ mt: "1rem", textAlign: "left" }}>
+        Coupons Lists Approvals
+      </Typography>
       {dataFlag &&
         data.map((cl, idx) => {
           return (
             <Box key={`dg-${idx}`}>
-              <Typography variant="h4" sx={{ mt: '1rem', textAlign: 'left' }}>
+              <Typography variant="h6" sx={{ mt: "1rem", textAlign: "left" }}>
                 {cl.name}
               </Typography>
 
@@ -191,17 +194,17 @@ export default function ApprovalsSCreen() {
                 autoHeight
                 initialState={{
                   pinnedColumns: {
-                    right: ['actions'],
+                    right: ["actions"],
                   },
                 }}
               />
             </Box>
-          );
+          )
         })}
       {unauthorized && (
         <Box>
-          <Typography variant="h4" sx={{ mt: '1rem', textAlign: 'left' }}>
-            {'Only authorize users can approve coupons list'}
+          <Typography variant="h4" sx={{ mt: "1rem", textAlign: "left" }}>
+            {"Only authorize users can approve coupons list"}
           </Typography>
         </Box>
       )}
@@ -212,5 +215,5 @@ export default function ApprovalsSCreen() {
         message={`Key copied to clipboard!`}
       />
     </div>
-  );
+  )
 }

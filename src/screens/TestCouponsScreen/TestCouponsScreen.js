@@ -68,7 +68,7 @@ export default function TestCouponsScreen() {
 
   return (
     <Box>
-      <Typography variant="h4" sx={{ mt: 2, mb: 2 }}>
+      <Typography variant="h4" sx={{ mt: 2, mb: 2, textAlign: "left" }}>
         Testing
       </Typography>
       <Box
