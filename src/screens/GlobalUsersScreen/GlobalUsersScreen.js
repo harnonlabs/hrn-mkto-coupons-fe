@@ -9,8 +9,9 @@ import VerifiedIcon from '@mui/icons-material/Verified';
 import Modal from '@mui/material/Modal';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
-import { useCheckUserRole } from '../utils/useCheckUserRole';
-
+import { useCheckUserRole } from '../../utils/useCheckUserRole';
+import { createCompany, setUserCompany } from './queries';
+import { getUsers, getCompanies, setUsersApprover } from '../../utils/queries';
 export default function GlobalUsersSCreen() {
   const { user } = useAuth0();
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
@@ -31,16 +32,42 @@ export default function GlobalUsersSCreen() {
   const [checkEmailRole] = useCheckUserRole();
 
   const style = {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
     width: 400,
-    bgcolor: "background.paper",
-    border: "2px solid #000",
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
     boxShadow: 24,
     p: 4,
   };
+
+  React.useEffect(() => {
+    async function getUserSB() {
+      try {
+        const usersSB = await getUsers(user.email);
+
+        let finalArr = [];
+        const companies = await getCompanies();
+        finalArr = usersSB.map((user) => {
+          let company = companies.find((item) => item.id === user.company_id);
+
+          return {
+            id: user.email,
+            email: user.email,
+            company: company ? company.name : null,
+            approver: user.role === 1 || user.role === 2 ? true : false,
+          };
+        });
+
+        setData(finalArr);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    getUserSB();
+  }, []);
 
   React.useEffect(() => {
     async function CheckUser() {
@@ -51,202 +78,222 @@ export default function GlobalUsersSCreen() {
 
   React.useEffect(() => {
     if (companyList.length > 0) {
-      setCompanyFlag(true)
+      setCompanyFlag(true);
     }
-  }, [companyList])
+  }, [companyList]);
   React.useEffect(() => {
     setColumna([
-      { field: "email", headerName: "Email", width: 350 },
-      { field: "company", headerName: "Company", width: 200 },
-      { field: "approver", headerName: "Approver", width: 80 },
+      { field: 'email', headerName: 'Email', width: 350 },
+      { field: 'company', headerName: 'Company', width: 200 },
+      { field: 'approver', headerName: 'Approver', width: 80 },
       {
-        field: "actions1",
-        type: "actions",
-        headerName: "Set approver",
+        field: 'actions1',
+        type: 'actions',
+        headerName: 'Set approver',
         width: 150,
         getActions: (params) => [
           <GridActionsCellItem
             icon={<VerifiedIcon />}
             label="SetApprover"
             onClick={() => {
-              selectApprover(params.row["id"])
+              selectApprover(params.row['id']);
             }}
           />,
         ],
       },
       {
-        field: "actions2",
-        type: "actions",
-        headerName: "Select company",
+        field: 'actions2',
+        type: 'actions',
+        headerName: 'Select company',
         width: 150,
         getActions: (params) => [
           <GridActionsCellItem
             icon={<EditIcon />}
             label="SetApprover"
             onClick={() => {
-              selectCompany(params.row["id"])
+              selectCompany(params.row['id']);
             }}
           />,
         ],
       },
-    ])
-  }, [user.email])
+    ]);
+  }, [user.email]);
+
   React.useEffect(() => {
     async function getData() {
-      try {
-        const request = await fetch(
-          `${process.env.REACT_APP_WORKER_URL}/listUsers`,
-          {
-            method: "POST",
-            body: JSON.stringify({
-              content: { token: appContext.token, email: user.email },
-            }),
-            headers: { "content-type": "application/json" },
-          }
-        )
-        const response = await request.json()
-        if (response) {
-          const userResponse = response.find(
-            (item) => item.email === user.email
-          )
-
-          //  setCompanyName('global Harnon configuration');
-          let finalArr = []
-
-          finalArr = response.map((cl) => {
-            return {
-              id: cl.email,
-              email: cl.email,
-              company: cl.companyName,
-              approver: cl.approver,
-            }
-          })
-
-          setData(finalArr)
-        }
-      } catch (err) {
-        console.log("ERROR!", err)
-      }
+      // try {
+      //   const request = await fetch(
+      //     `${process.env.REACT_APP_WORKER_URL}/listUsers`,
+      //     {
+      //       method: 'POST',
+      //       body: JSON.stringify({
+      //         content: { token: appContext.token, email: user.email },
+      //       }),
+      //       headers: { 'content-type': 'application/json' },
+      //     },
+      //   );
+      //   const response = await request.json();
+      //   if (response) {
+      //     const userResponse = response.find(
+      //       (item) => item.email === user.email,
+      //     );
+      //     //  setCompanyName('global Harnon configuration');
+      //     let finalArr = [];
+      //     finalArr = response.map((cl) => {
+      //       return {
+      //         id: cl.email,
+      //         email: cl.email,
+      //         company: cl.companyName,
+      //         approver: cl.approver,
+      //       };
+      //     });
+      //     setData(finalArr);
+      //   }
+      // } catch (err) {
+      //   console.log('ERROR!', err);
+      // }
     }
-    getData()
-  }, [appContext.token, user.email])
+    getData();
+  }, [appContext.token, user.email]);
   React.useEffect(() => {
     if (data.length > 0) {
-      getCompanyList()
-      setDataFlag(true)
+      getCompanyList();
+      setDataFlag(true);
     }
-  }, [data])
+  }, [data]);
 
   const onCloseSnackbar = () => {
-    setOpenSnackbar(false)
-  }
+    setOpenSnackbar(false);
+  };
   async function updateData() {
     try {
-      const request = await fetch(
-        `${process.env.REACT_APP_WORKER_URL}/listUsers`,
-        {
-          method: "POST",
-          body: JSON.stringify({
-            content: { token: appContext.token, email: user.email },
-          }),
-          headers: { "content-type": "application/json" },
-        }
-      )
-      const response = await request.json()
-      if (response) {
-        const userResponse = response.find((item) => item.email === user.email)
-        setCompanyName(userResponse.companyName)
-        let finalArr = []
+      const usersSB = await getUsers(user.email);
 
-        finalArr = response.map((cl) => {
-          return {
-            id: cl.email,
-            email: cl.email,
-            company: cl.companyName,
-            approver: cl.approver,
-          }
-        })
+      let finalArr = [];
+      const companies = await getCompanies();
+      finalArr = usersSB.map((user) => {
+        let company = companies.find((item) => item.id === user.company_id);
 
-        setData(finalArr)
-      }
+        return {
+          id: user.email,
+          email: user.email,
+          company: company ? company.name : null,
+          approver: user.role === 1 || user.role === 2 ? true : false,
+        };
+      });
+
+      setData(finalArr);
+      // const request = await fetch(
+      //   `${process.env.REACT_APP_WORKER_URL}/listUsers`,
+      //   {
+      //     method: 'POST',
+      //     body: JSON.stringify({
+      //       content: { token: appContext.token, email: user.email },
+      //     }),
+      //     headers: { 'content-type': 'application/json' },
+      //   },
+      // );
+      // const response = await request.json();
+      // if (response) {
+      //   const userResponse = response.find((item) => item.email === user.email);
+      //   setCompanyName(userResponse.companyName);
+      //   let finalArr = [];
+
+      //   finalArr = response.map((cl) => {
+      //     return {
+      //       id: cl.email,
+      //       email: cl.email,
+      //       company: cl.companyName,
+      //       approver: cl.approver,
+      //     };
+      //   });
+
+      //   setData(finalArr);
+      // }
     } catch (err) {
-      console.log("ERROR!", err)
+      console.log('ERROR!', err);
     }
   }
   const selectApprover = async (email) => {
     try {
-      const request = await fetch(
-        `${process.env.REACT_APP_WORKER_URL}/pickUsersApprover`,
-        {
-          method: "POST",
-          body: JSON.stringify({
-            content: { token: appContext.token, email: email },
-          }),
-          headers: { "content-type": "application/json" },
-        }
-      )
-      const response = await request.json()
+      // const request = await fetch(
+      //   `${process.env.REACT_APP_WORKER_URL}/pickUsersApprover`,
+      //   {
+      //     method: 'POST',
+      //     body: JSON.stringify({
+      //       content: { token: appContext.token, email: email },
+      //     }),
+      //     headers: { 'content-type': 'application/json' },
+      //   },
+      // );
+      // const response = await request.json();
+
+      const response = await setUsersApprover(email);
+
       if (response) {
-        updateData()
+        updateData();
       }
     } catch (err) {
-      console.log("ERROR!", err)
+      console.log('ERROR!', err);
     }
-  }
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
     try {
-      const request = await fetch(
-        `${process.env.REACT_APP_WORKER_URL}/createCompany`,
-        {
-          method: "POST",
-          body: JSON.stringify({
-            content: {
-              email: user.email,
-              token: appContext.token,
-              companyName,
-            },
-          }),
-          headers: { 'content-type': 'application/json' },
-        },
-      );
-      const response = await request.json();
+      await createCompany(companyName);
+
+      // const request = await fetch(
+      //   `${process.env.REACT_APP_WORKER_URL}/createCompany`,
+      //   {
+      //     method: 'POST',
+      //     body: JSON.stringify({
+      //       content: {
+      //         email: user.email,
+      //         token: appContext.token,
+      //         companyName,
+      //       },
+      //     }),
+      //     headers: { 'content-type': 'application/json' },
+      //   },
+      // );
+      // const response = await request.json();
       setCompanyName('');
       setCompanyNameInput('');
       setIsSubmitDone(true);
       getCompanyList();
-      return response;
+      return 'response';
     } catch (err) {
-      console.log("ERROR!", err)
+      console.log('ERROR!', err);
     }
-  }
+  };
 
   const handleSubmitModal = async () => {
     try {
-      const request = await fetch(
-        `${process.env.REACT_APP_WORKER_URL}/pickCompany`,
-        {
-          method: "POST",
-          body: JSON.stringify({
-            content: {
-              email: selectedEmail,
-              token: appContext.token,
-              companyName: selectedCompany,
-            },
-          }),
-          headers: { "content-type": "application/json" },
-        }
-      )
-      const response = await request.json()
-      handleCloseModalUserCompany()
-      updateData()
-      return response
+      // const request = await fetch(
+      //   `${process.env.REACT_APP_WORKER_URL}/pickCompany`,
+      //   {
+      //     method: 'POST',
+      //     body: JSON.stringify({
+      //       content: {
+      //         email: selectedEmail,
+      //         token: appContext.token,
+      //         companyName: selectedCompany,
+      //       },
+      //     }),
+      //     headers: { 'content-type': 'application/json' },
+      //   },
+      // );
+      // const response = await request.json();
+      const response = await setUserCompany(selectedEmail, selectedCompany);
+      handleCloseModalUserCompany();
+      updateData();
+      return response;
     } catch (err) {
-      console.log("ERROR!", err)
+      console.log('ERROR!', err);
     }
-  }
+  };
   const setCompany = (name) => {
     setCompanyName(name);
     setCompanyNameInput(name);
@@ -254,57 +301,59 @@ export default function GlobalUsersSCreen() {
   };
 
   const selectCompany = async (email) => {
-    setSelectedEmail(email)
-    handleOpenModalUserCompany()
-  }
+    setSelectedEmail(email);
+    handleOpenModalUserCompany();
+  };
 
   const getCompanyList = async () => {
     try {
-      const request = await fetch(
-        `${process.env.REACT_APP_WORKER_URL}/listCompanies`,
-        {
-          method: "POST",
-          body: JSON.stringify({
-            content: { token: appContext.token, email: user.email },
-          }),
-          headers: { "content-type": "application/json" },
-        }
-      )
-      const response = await request.json()
+      // const request = await fetch(
+      //   `${process.env.REACT_APP_WORKER_URL}/listCompanies`,
+      //   {
+      //     method: 'POST',
+      //     body: JSON.stringify({
+      //       content: { token: appContext.token, email: user.email },
+      //     }),
+      //     headers: { 'content-type': 'application/json' },
+      //   },
+      // );
+      // const response = await request.json();
+      const response = await getCompanies();
+
       if (response) {
         const array = response.map((cl) => {
-          return cl.companyName
-        })
+          return cl.name;
+        });
 
-        setCompanyList(array)
+        setCompanyList(array);
       }
     } catch (err) {
-      console.log("ERROR!", err)
+      console.log('ERROR!', err);
     }
-  }
+  };
   const handleChangeSelector = (event) => {
-    setSelectedCompany(event.target.value)
-  }
+    setSelectedCompany(event.target.value);
+  };
 
   // console.log('REACT_APP_WORKER_URL', process.env.REACT_APP_WORKER_URL, 'no');
 
   return (
-    <div style={{ height: 400, width: "100%" }}>
+    <div style={{ height: 400, width: '100%' }}>
       <>
         <Typography variant="h4" sx={{ mt: 2, mb: 2 }}>
           Create Company
         </Typography>
         <Box
           sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
           }}
         >
           <Paper
             sx={{
-              width: "35%",
-              padding: "2rem",
+              width: '35%',
+              padding: '2rem',
             }}
             elevation={4}
           >
@@ -321,7 +370,7 @@ export default function GlobalUsersSCreen() {
                   />
                 </Box>
                 <Button variant="contained" onClick={handleSubmit}>
-                  {"Create Company!"}
+                  {'Create Company!'}
                 </Button>
                 {isSubmitDone && (
                   <Typography variant="h6" sx={{ mt: 2, mb: 2 }}>
@@ -335,10 +384,10 @@ export default function GlobalUsersSCreen() {
       </>
       {dataFlag && (
         <Box key={`dg-user`}>
-          <Typography variant="h4" sx={{ mt: "1rem", textAlign: "left" }}>
+          <Typography variant="h4" sx={{ mt: '1rem', textAlign: 'left' }}>
             {`Harnon Global Users`}
           </Typography>
-          <Box sx={{ display: "flex", mt: 2, mb: 2 }}></Box>
+          <Box sx={{ display: 'flex', mt: 2, mb: 2 }}></Box>
 
           <DataGrid
             rows={data}
@@ -348,7 +397,7 @@ export default function GlobalUsersSCreen() {
             autoHeight
             initialState={{
               pinnedColumns: {
-                right: ["actions"],
+                right: ['actions'],
               },
             }}
           />
@@ -373,7 +422,7 @@ export default function GlobalUsersSCreen() {
               value={selectedCompany}
               label="Company"
               onChange={handleChangeSelector}
-              sx={{ width: "100%", margin: "1rem 0" }}
+              sx={{ width: '100%', margin: '1rem 0' }}
             >
               {companyFlag &&
                 companyList.map((item) => {
@@ -381,12 +430,12 @@ export default function GlobalUsersSCreen() {
                     <MenuItem key={item} value={item}>
                       {item}
                     </MenuItem>
-                  )
+                  );
                 })}
             </Select>
           </Box>
           <Button variant="contained" onClick={handleSubmitModal}>
-            {"Select Company!"}
+            {'Select Company!'}
           </Button>
         </Box>
       </Modal>
@@ -397,5 +446,5 @@ export default function GlobalUsersSCreen() {
         message={`Key copied to clipboard!`}
       />
     </div>
-  )
+  );
 }

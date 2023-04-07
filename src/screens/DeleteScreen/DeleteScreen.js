@@ -2,7 +2,7 @@ import React from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 import { AppContext } from './../../App';
 import { Button, Box } from '@mui/material';
-import { useCheckUserValidity } from '../utils/useCheckUserValidity';
+import { useCheckUserValidity } from '../../utils/useCheckUserValidity';
 
 export default function InstallScreen() {
   const appContext = React.useContext(AppContext);
