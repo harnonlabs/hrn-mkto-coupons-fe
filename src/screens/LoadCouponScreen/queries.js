@@ -37,17 +37,19 @@ export async function createCouponList(email, name, coupons) {
     .select();
   let couponsListData = couponsListInsert.data[0];
 
-  //   const newArray = [];
-  //   coupons.map((coupon) => {
-  //     newArray.push({
-  //       coupon_list: couponsListData.id,
-  //       value: coupon,
-  //       is_used: false,
-  //       date_used: false,
-  //     });
-  //   });
+  const newArray = coupons.map((coupon) => {
+    return {
+      coupons_list_id: couponsListData.id,
+      value: coupon,
+      is_used: false,
+    };
+  });
 
-  //   console.log('newArray', newArray);
+  console.log('newArray', newArray);
+  const couponsInsert = await supabase.from('coupons').upsert(newArray);
+  console.log(couponsInsert);
+
+  return encodedKey;
   for (let i = 0; i < coupons.length; i++) {
     const couponsInsert = await supabase.from('coupons').upsert([
       {
