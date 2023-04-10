@@ -100,6 +100,7 @@ export default function TestCouponsScreen() {
           <PickerCouponsLists
             setter={setSelectedCouponsList}
             setterEmail={setSelectedCouponsListEmail}
+            ApprovedFilter={true}
           />
           <Button variant="contained" onClick={testCoupon} sx={{ mb: 1 }}>
             Test Coupon

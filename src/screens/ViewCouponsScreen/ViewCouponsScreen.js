@@ -32,7 +32,7 @@ export default function DataTable() {
   React.useEffect(() => {
     if (data.length > 0) {
       setColumns([
-        { field: 'coupon', headerName: 'Coupon Number', width: 150 },
+        { field: 'coupons', headerName: 'Coupon Number', width: 150 },
         { field: 'isUsed', headerName: 'Is Used?', width: 80 },
         { field: 'dateUsed', headerName: 'Date Used', width: 200 },
         { field: 'email', headerName: 'email', width: 250 },
@@ -138,7 +138,7 @@ export default function DataTable() {
           let result = [];
           let num = 0;
           for (const [key, value] of Object.entries(c)) {
-            num = Math.floor(Math.random() * 10000);
+            num = Math.floor(Math.random() * 100000);
 
             mid = [];
             for (const [keyCoupon, valueCoupon] of Object.entries(
@@ -152,10 +152,12 @@ export default function DataTable() {
                   'YYYY-MM-DD hh:mm:ss',
                 );
               }
+              //console.log(value.coupons);
+              // console.log(valueCoupon);
 
               mid.push({
                 id: value.key + valueCoupon + num,
-                coupons: valueCoupon,
+                coupons: value.coupons[valueCoupon].coupon,
                 isUsed: value.coupons[valueCoupon].isUsed,
                 dateUsed: value.coupons[valueCoupon].dateUsed
                   ? dayjs(value.coupons[valueCoupon].dateUsed).format(
@@ -215,6 +217,7 @@ export default function DataTable() {
           let c = x[i]['coupons'];
           let result = [];
           for (const [key, value] of Object.entries(c)) {
+            console.log(value.coupons);
             if (value.dateUsed) {
               const stringDate = new Date(value.dateUsed);
               value.dateUsed = dayjs(stringDate).format('YYYY-MM-DD hh:mm:ss');
@@ -292,8 +295,8 @@ export default function DataTable() {
               <DataGrid
                 rows={cl.coupons}
                 columns={columns}
-                pageSize={50}
-                rowsPerPageOptions={[50]}
+                pageSize={10}
+                rowsPerPageOptions={[10]}
                 autoHeight
                 // checkboxSelection
               />
@@ -352,8 +355,8 @@ export default function DataTable() {
                   <DataGrid
                     rows={item.coupons}
                     columns={columns}
-                    pageSize={50}
-                    rowsPerPageOptions={[50]}
+                    pageSize={10}
+                    rowsPerPageOptions={[10]}
                     autoHeight
                     initialState={{
                       pinnedColumns: {

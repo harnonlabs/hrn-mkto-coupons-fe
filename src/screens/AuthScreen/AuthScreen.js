@@ -281,7 +281,7 @@ export default function AuthScreen() {
           </Link>
         </List>
         <List>
-          {role === 1 ? (
+          {role !== 3 ? (
             <Link to="/delete">
               <ListItem disablePadding>
                 <ListItemButton>
