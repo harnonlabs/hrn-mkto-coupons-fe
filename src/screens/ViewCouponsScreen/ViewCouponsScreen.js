@@ -7,7 +7,8 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { ResetTvOutlined } from '@mui/icons-material';
 import Snackbar from '@mui/material/Snackbar';
 import dayjs from 'dayjs';
-import { useCheckUserValidity } from '../utils/useCheckUserValidity';
+import { useCheckUserValidity } from '../../utils/useCheckUserValidity';
+import { getUser, getAdminCoupons, getUserCoupons } from '../../utils/queries';
 
 export default function DataTable() {
   const { user, isLoading } = useAuth0();
@@ -58,9 +59,9 @@ export default function DataTable() {
 
   React.useEffect(() => {
     if (role !== 0) {
-      if (approver === true || role === 3) {
+      if (approver === true || role <= 2) {
         getDataApprover();
-      } else if (role === 1) {
+      } else {
         getDataUser();
       }
     }
@@ -68,23 +69,26 @@ export default function DataTable() {
 
   async function getUserInfo() {
     try {
-      const request = await fetch(
-        `${process.env.REACT_APP_WORKER_URL}/listUsers`,
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            content: { token: appContext.token, email: user.email },
-          }),
-          headers: { 'content-type': 'application/json' },
-        },
-      );
-      const response = await request.json();
+      // const request = await fetch(
+      //   `${process.env.REACT_APP_WORKER_URL}/listUsers`,
+      //   {
+      //     method: 'POST',
+      //     body: JSON.stringify({
+      //       content: { token: appContext.token, email: user.email },
+      //     }),
+      //     headers: { 'content-type': 'application/json' },
+      //   },
+      // );
+      // const response = await request.json();
+      const userResponse = await getUser(user.email);
 
-      if (response) {
-        const userResponse = response.find((item) => item.email === user.email);
+      if (userResponse) {
+        // const userResponse = response.find((item) => item.email === user.email);
 
         setRole(userResponse.role);
-        setApprover(userResponse.approver);
+        if (userResponse.role <= 2) {
+          setApprover(true);
+        }
       }
     } catch (err) {
       console.log('ERROR!', err);
@@ -93,28 +97,31 @@ export default function DataTable() {
 
   async function getDataApprover() {
     try {
-      const request = await fetch(
-        `${process.env.REACT_APP_WORKER_URL}/listApprovals`,
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            content: { token: appContext.token, email: user.email },
-          }),
-          headers: { 'content-type': 'application/json' },
-        },
-      );
-      const response = await request.json();
+      // const request = await fetch(
+      //   `${process.env.REACT_APP_WORKER_URL}/listApprovals`,
+      //   {
+      //     method: 'POST',
+      //     body: JSON.stringify({
+      //       content: { token: appContext.token, email: user.email },
+      //     }),
+      //     headers: { 'content-type': 'application/json' },
+      //   },
+      // );
+      // const response = await request.json();
+      const response = await getAdminCoupons(user.email);
 
       if (response) {
-        const userResponse = response.find((item) => item.email === user.email);
+        const userResponse = response.find((item) => item.name === user.email);
+
         let filterCompanyUsers = response.filter(
-          (item) => item.companyName === userResponse.companyName,
+          (item) => item.company_id === userResponse.company_id,
         );
 
-        if (role === 3) {
+        if (role === 1) {
           filterCompanyUsers = response;
         }
 
+        //console.log(role, response);
         let finalArr = [];
         let email = '';
         const x = filterCompanyUsers.map((cl) => {
@@ -184,14 +191,15 @@ export default function DataTable() {
   }
   async function getDataUser() {
     try {
-      const request = await fetch(`${process.env.REACT_APP_WORKER_URL}/view`, {
-        method: 'POST',
-        body: JSON.stringify({
-          content: { token: appContext.token, email: user.email },
-        }),
-        headers: { 'content-type': 'application/json' },
-      });
-      const response = await request.json();
+      // const request = await fetch(`${process.env.REACT_APP_WORKER_URL}/view`, {
+      //   method: 'POST',
+      //   body: JSON.stringify({
+      //     content: { token: appContext.token, email: user.email },
+      //   }),
+      //   headers: { 'content-type': 'application/json' },
+      // });
+      // const response = await request.json();
+      const response = await getUserCoupons(user.email);
 
       if (response) {
         let finalArr = [];

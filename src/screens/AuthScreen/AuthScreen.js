@@ -38,8 +38,10 @@ import { useAuth0 } from '@auth0/auth0-react';
 import H from './../../img/H.svg';
 import UsersScreen from '../UsersScreen/UsersScreen';
 import ApprovalsSCreen from '../ApprovalsScreen/ApprovalsScreen';
-import { useCheckUserRole } from '../utils/useCheckUserRole';
+import { useCheckUserRole } from '../../utils/useCheckUserRole';
 import { AppContext } from '../../App';
+import SuapabaseTest from '../SuapabaseTest/SuapabaseTest';
+import { getUser } from '../../utils/queries';
 
 const drawerWidth = 240;
 
@@ -100,27 +102,29 @@ export default function AuthScreen() {
   React.useEffect(() => {
     async function CheckUser() {
       try {
-        const request = await fetch(
-          `${process.env.REACT_APP_WORKER_URL}/listUsers`,
-          {
-            method: 'POST',
-            body: JSON.stringify({
-              content: { token: appContext.token, email: user.email },
-            }),
-            headers: { 'content-type': 'application/json' },
-          },
-        );
-        const response = await request.json();
+        // const request = await fetch(
+        //   `${process.env.REACT_APP_WORKER_URL}/listUsers`,
+        //   {
+        //     method: 'POST',
+        //     body: JSON.stringify({
+        //       content: { token: appContext.token, email: user.email },
+        //     }),
+        //     headers: { 'content-type': 'application/json' },
+        //   },
+        // );
+        // const response = await request.json();
 
-        if (response) {
-          const userResponse = response.find(
-            (item) => item.email === user.email,
-          );
-          if (userResponse) {
-            console.log(userResponse.role);
-            setRole(userResponse.role);
-          }
-        }
+        // if (response) {
+        //   const userResponse = response.find(
+        //     (item) => item.email === user.email,
+        //   );
+        //   if (userResponse) {
+        //     setRole(userResponse.role);
+        //   }
+        // }
+
+        const userSB = await getUser(user.email);
+        setRole(userSB.role);
       } catch (err) {
         console.log('ERROR!', err);
       }
@@ -277,7 +281,7 @@ export default function AuthScreen() {
           </Link>
         </List>
         <List>
-          {role === 3 ? (
+          {role === 1 ? (
             <Link to="/delete">
               <ListItem disablePadding>
                 <ListItemButton>
@@ -305,6 +309,7 @@ export default function AuthScreen() {
             <Route path="/delete" element={<DeleteScreen />} />
             <Route path="/users" element={<UsersScreen />} />
             <Route path="/approvals" element={<ApprovalsSCreen />} />
+            <Route path="/supabase" element={<SuapabaseTest />} />
             <Route
               path="/account"
               element={<AccountScreen accountData={handleAccountData} />}

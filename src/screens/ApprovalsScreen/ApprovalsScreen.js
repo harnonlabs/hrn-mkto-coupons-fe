@@ -8,7 +8,9 @@ import { ResetTvOutlined } from '@mui/icons-material';
 import Snackbar from '@mui/material/Snackbar';
 import EditIcon from '@mui/icons-material/Edit';
 import VerifiedIcon from '@mui/icons-material/Verified';
-import { useCheckUserValidity } from '../utils/useCheckUserValidity';
+import { useCheckUserValidity } from '../../utils/useCheckUserValidity';
+import { getUser, getAdminCoupons } from '../../utils/queries';
+import { approveCouponList } from './queries';
 
 export default function ApprovalsSCreen() {
   const { user, isLoading } = useAuth0();
@@ -54,7 +56,7 @@ export default function ApprovalsSCreen() {
   }, []);
 
   React.useEffect(() => {
-    if (approver === true || role === 3) {
+    if (approver === true || (role > 0 && role <= 2)) {
       getData();
     } else {
       setUnauthorized(true);
@@ -63,24 +65,33 @@ export default function ApprovalsSCreen() {
 
   async function getUserInfo() {
     try {
-      const request = await fetch(
-        `${process.env.REACT_APP_WORKER_URL}/listUsers`,
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            content: { token: appContext.token, email: user.email },
-          }),
-          headers: { 'content-type': 'application/json' },
-        },
-      );
-      const response = await request.json();
+      // const request = await fetch(
+      //   `${process.env.REACT_APP_WORKER_URL}/listUsers`,
+      //   {
+      //     method: 'POST',
+      //     body: JSON.stringify({
+      //       content: { token: appContext.token, email: user.email },
+      //     }),
+      //     headers: { 'content-type': 'application/json' },
+      //   },
+      // );
+      // const response = await request.json();
+      const userResponse = await getUser(user.email);
 
-      if (response) {
-        const userResponse = response.find((item) => item.email === user.email);
+      if (userResponse) {
+        // const userResponse = response.find((item) => item.email === user.email);
+
         setRole(userResponse.role);
-        console.log(userResponse.role, 'urr');
-        setApprover(userResponse.approver);
+        if (userResponse.role <= 2) {
+          setApprover(true);
+        }
       }
+      // if (response) {
+      //   const userResponse = response.find((item) => item.email === user.email);
+      //   setRole(userResponse.role);
+      //   console.log(userResponse.role, 'urr');
+      //   setApprover(userResponse.approver);
+      // }
     } catch (err) {
       console.log('ERROR!', err);
     }
@@ -104,25 +115,27 @@ export default function ApprovalsSCreen() {
   };
   async function getData() {
     try {
-      const request = await fetch(
-        `${process.env.REACT_APP_WORKER_URL}/listApprovals`,
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            content: { token: appContext.token, email: user.email },
-          }),
-          headers: { 'content-type': 'application/json' },
-        },
-      );
-      const response = await request.json();
+      // const request = await fetch(
+      //   `${process.env.REACT_APP_WORKER_URL}/listApprovals`,
+      //   {
+      //     method: 'POST',
+      //     body: JSON.stringify({
+      //       content: { token: appContext.token, email: user.email },
+      //     }),
+      //     headers: { 'content-type': 'application/json' },
+      //   },
+      // );
+      // const response = await request.json();
+      const response = await getAdminCoupons(user.email);
 
       if (response) {
-        const userResponse = response.find((item) => item.email === user.email);
+        const userResponse = response.find((item) => item.name === user.email);
+
         let filterCompanyUsers = response.filter(
-          (item) => item.companyName === userResponse.companyName,
+          (item) => item.company_id === userResponse.company_id,
         );
-        console.log(role, 'r');
-        if (role === 3) {
+
+        if (role === 1) {
           filterCompanyUsers = response;
         }
         let finalArr = [];
@@ -162,17 +175,19 @@ export default function ApprovalsSCreen() {
   }
   const selectApprover = async (key, email) => {
     try {
-      const request = await fetch(
-        `${process.env.REACT_APP_WORKER_URL}/approveKey`,
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            content: { token: appContext.token, email: email, encodedKey: key },
-          }),
-          headers: { 'content-type': 'application/json' },
-        },
-      );
-      const response = await request.json();
+      // const request = await fetch(
+      //   `${process.env.REACT_APP_WORKER_URL}/approveKey`,
+      //   {
+      //     method: 'POST',
+      //     body: JSON.stringify({
+      //       content: { token: appContext.token, email: email, encodedKey: key },
+      //     }),
+      //     headers: { 'content-type': 'application/json' },
+      //   },
+      // );
+      // const response = await request.json();
+      const response = await approveCouponList(email, key);
+
       if (response) {
         getData();
       }

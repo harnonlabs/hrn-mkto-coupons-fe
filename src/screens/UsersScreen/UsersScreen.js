@@ -4,11 +4,12 @@ import { DataGrid } from '@mui/x-data-grid';
 import { Typography, Box } from '@mui/material';
 import { AppContext } from '../../App';
 import Snackbar from '@mui/material/Snackbar';
-import { useCheckUserValidity } from '../utils/useCheckUserValidity';
+import { useCheckUserValidity } from '../../utils/useCheckUserValidity';
+import { getCompanies, getUsers } from '../../utils/queries';
 
 export default function UsersSCreen() {
-  const { user } = useAuth0()
-  const [openSnackbar, setOpenSnackbar] = React.useState(false)
+  const { user } = useAuth0();
+  const [openSnackbar, setOpenSnackbar] = React.useState(false);
   const appContext = React.useContext(AppContext);
   const [data, setData] = React.useState([]);
   const [dataFlag, setDataFlag] = React.useState(false);
@@ -25,75 +26,79 @@ export default function UsersSCreen() {
 
   React.useEffect(() => {
     setColumna([
-      { field: "email", headerName: "Email", width: 350 },
-      { field: "approver", headerName: "Approver", width: 80 },
-    ])
-  }, [user.email])
+      { field: 'email', headerName: 'Email', width: 350 },
+      { field: 'approver', headerName: 'Approver', width: 80 },
+    ]);
+  }, [user.email]);
   React.useEffect(() => {
     async function getData() {
       try {
-        console.log("columna", columna)
-        const request = await fetch(
-          `${process.env.REACT_APP_WORKER_URL}/listUsers`,
-          {
-            method: "POST",
-            body: JSON.stringify({
-              content: { token: appContext.token, email: user.email },
-            }),
-            headers: { "content-type": "application/json" },
-          }
-        )
-        const response = await request.json()
+        // console.log('columna', columna);
+        // const request = await fetch(
+        //   `${process.env.REACT_APP_WORKER_URL}/listUsers`,
+        //   {
+        //     method: 'POST',
+        //     body: JSON.stringify({
+        //       content: { token: appContext.token, email: user.email },
+        //     }),
+        //     headers: { 'content-type': 'application/json' },
+        //   },
+        // );
+        // const response = await request.json();
+        const response = await getUsers();
         if (response) {
           const userResponse = response.find(
-            (item) => item.email === user.email
-          )
-
-          setCompanyName(userResponse.companyName)
-          let finalArr = []
+            (item) => item.email === user.email,
+          );
+          const companies = await getCompanies();
+          let company = companies.find(
+            (item) => item.id === userResponse.company_id,
+          );
+          company ? setCompanyName(company.name) : setCompanyName('');
+          let finalArr = [];
           const filterCompanyUsers = response.filter(
-            (item) => item.companyName === companyName
-          )
+            (item) => item.company_id === userResponse.company_id,
+          );
 
-          finalArr = filterCompanyUsers.map((cl) => {
+          finalArr = filterCompanyUsers.map((user) => {
             return {
-              id: cl.email,
-              email: cl.email,
-              approver: cl.approver,
-            }
-          })
-
-          setData(finalArr)
+              id: user.email,
+              email: user.email,
+              approver: user.role === 1 || user.role === 2 ? true : false,
+            };
+          });
+          console.log('a');
+          setData(finalArr);
         }
       } catch (err) {
-        console.log("ERROR!", err)
+        console.log('ERROR!', err);
       }
     }
-    getData()
-  }, [appContext.token, companyName, user.email])
+    getData();
+  }, [user.email]);
   React.useEffect(() => {
     if (data.length > 0) {
-      setDataFlag(true)
+      setDataFlag(true);
     }
-  }, [data])
+  }, [data]);
 
   const onCloseSnackbar = () => {
-    setOpenSnackbar(false)
-  }
-  console.log("REACT_APP_WORKER_URL", process.env.REACT_APP_WORKER_URL, "no")
+    setOpenSnackbar(false);
+  };
+  console.log('REACT_APP_WORKER_URL', process.env.REACT_APP_WORKER_URL, 'no');
 
   return (
-    <div style={{ height: 400, width: "100%" }}>
+    <div style={{ height: 400, width: '100%' }}>
       {/* {dataFlag && <p>({data[0].email})</p>} */}
       {dataFlag && (
         <Box key={`dg-user`}>
-          <Typography variant="h4" sx={{ mt: 2, mb: 2, textAlign: "left" }}>
+          <Typography variant="h4" sx={{ mt: 2, mb: 2, textAlign: 'left' }}>
             Users
           </Typography>
-          <Typography variant="h6" sx={{ mt: "1rem", textAlign: "left" }}>
+          <Typography variant="h6" sx={{ mt: '1rem', textAlign: 'left' }}>
             {`Company: ${companyName}`}
           </Typography>
-          <Box sx={{ display: "flex", mt: 2, mb: 2 }}></Box>
+          <Box sx={{ display: 'flex', mt: 2, mb: 2 }}></Box>
           {/* <Typography variant="h6" sx={{ textAlign: "left" }}>
                 {cl.key}
               </Typography> */}
@@ -105,7 +110,7 @@ export default function UsersSCreen() {
             autoHeight
             initialState={{
               pinnedColumns: {
-                right: ["actions"],
+                right: ['actions'],
               },
             }}
           />
@@ -118,5 +123,5 @@ export default function UsersSCreen() {
         message={`Key copied to clipboard!`}
       />
     </div>
-  )
+  );
 }

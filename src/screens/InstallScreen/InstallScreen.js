@@ -4,7 +4,7 @@ import CardContent from '@mui/material/CardContent';
 import React from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 import { AppContext } from '../../App';
-import { useCheckUserValidity } from '../utils/useCheckUserValidity';
+import { useCheckUserValidity } from '../../utils/useCheckUserValidity';
 
 function copyToClipboard(e) {
   let copyText = document.getElementById('mktoPayload');
@@ -26,7 +26,7 @@ export default function InstallScreen() {
 
   return (
     <>
-      <Typography variant="h4" sx={{ mt: 2, mb: 2, textAlign: "left" }}>
+      <Typography variant="h4" sx={{ mt: 2, mb: 2, textAlign: 'left' }}>
         Install in Marketo
       </Typography>
       <Box
@@ -38,8 +38,8 @@ export default function InstallScreen() {
       >
         <Paper
           sx={{
-            width: "70%",
-            padding: "2rem",
+            width: '70%',
+            padding: '2rem',
           }}
           elevation={4}
         >
