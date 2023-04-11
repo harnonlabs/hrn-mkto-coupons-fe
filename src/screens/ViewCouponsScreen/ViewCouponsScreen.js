@@ -112,14 +112,14 @@ export default function DataTable() {
 
       if (response) {
         const userResponse = response.find((item) => item.name === user.email);
-
+        console.log(role, response);
         let filterCompanyUsers = response.filter(
           (item) => item.company_id === userResponse.company_id,
         );
-
         if (role === 1) {
           filterCompanyUsers = response;
         }
+        console.log(role, filterCompanyUsers, response);
 
         //console.log(role, response);
         let finalArr = [];
