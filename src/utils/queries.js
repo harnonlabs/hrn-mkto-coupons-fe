@@ -119,8 +119,8 @@ export async function getAdminCoupons(email) {
 
   const companyUser = await supabase
     .from('users')
-    .select('id,email,company_id')
-    .eq('company_id', userData.company_id);
+    .select('id,email,company_id');
+  //.eq('company_id', userData.company_id);
 
   const companyUserData = companyUser.data;
 

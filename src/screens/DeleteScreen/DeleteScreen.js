@@ -58,12 +58,18 @@ export default function InstallScreen() {
 
   const onDeleteAll = async () => {
     try {
+      console.log('test getcoupon');
       const request = await fetch(
-        `${process.env.REACT_APP_WORKER_URL}/deleteAll`,
+        `${process.env.REACT_APP_WORKER_URL}/getCoupon`,
         {
           method: 'POST',
           body: JSON.stringify({
-            content: { token: appContext.token, email: user.email },
+            content: {
+              token: appContext.token,
+              email: user.email,
+              emailAccount: 'sebasospina343@gmail.com',
+              couponsList: 'F/DpmHAyjpu+AeCac65m7EMx0LPeEfu8sDxm9hB/UwQ=',
+            },
           }),
           headers: { 'content-type': 'application/json' },
         },
@@ -105,6 +111,13 @@ export default function InstallScreen() {
             disabled={isSubmitDone}
           >
             Delete coupon list
+          </Button>
+          <Button
+            variant="contained"
+            onClick={onDeleteAll}
+            disabled={isSubmitDone}
+          >
+            Deleteall
           </Button>
           {message && <Box> {message}</Box>}
         </Paper>
