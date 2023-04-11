@@ -79,6 +79,7 @@ export async function getUserCoupons(email) {
       .select('id,value,is_used,date_used,used_by')
       .eq('coupons_list_id', coupons_list.data[i].id)
       .order('id', { ascending: true });
+
     if (coupons.error) {
       return [];
     }

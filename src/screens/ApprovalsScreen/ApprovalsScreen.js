@@ -58,7 +58,7 @@ export default function ApprovalsSCreen() {
   React.useEffect(() => {
     if (approver === true || (role > 0 && role <= 2)) {
       getData();
-    } else {
+    } else if (role === 3) {
       setUnauthorized(true);
     }
   }, [role, approver]);
