@@ -8,7 +8,11 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { AppContext } from './../../App';
 import { getAdminCoupons, getUser, getUserCoupons } from '../../utils/queries';
 
-export default function PickerCouponsLists({ setter, setterEmail }) {
+export default function PickerCouponsLists({
+  setter,
+  setterEmail,
+  ApprovedFilter,
+}) {
   const { user, isAuthenticated, isLoading } = useAuth0();
   const appContext = React.useContext(AppContext);
   const [couponsList, setCouponsList] = React.useState();
@@ -82,9 +86,15 @@ export default function PickerCouponsLists({ setter, setterEmail }) {
       // });
       // const response = await request.json();
       const response = await getUserCoupons(user.email);
-      const filterResponse = response.filter(
-        (response) => response.approved === true,
-      );
+      let filterResponse = [];
+      if (ApprovedFilter) {
+        filterResponse = response.filter(
+          (response) => response.approved === true,
+        );
+      } else {
+        filterResponse = response;
+      }
+
       const CouponList = filterResponse.map((cl) => {
         return {
           name: cl.name,
@@ -155,7 +165,9 @@ export default function PickerCouponsLists({ setter, setterEmail }) {
         }
 
         setCouponsList(
-          finalArr.filter((finalArr) => finalArr.approved === true),
+          ApprovedFilter
+            ? finalArr.filter((finalArr) => finalArr.approved === true)
+            : finalArr,
         );
       }
     } catch (err) {
