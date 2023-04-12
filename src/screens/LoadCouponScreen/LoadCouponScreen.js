@@ -5,12 +5,8 @@ import {
   Button,
   Box,
   TextField,
-  Card,
-  Chip,
+  CircularProgress,
   Paper,
-  FormGroup,
-  FormControlLabel,
-  Checkbox,
 } from '@mui/material';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { useAuth0 } from '@auth0/auth0-react';
@@ -36,7 +32,7 @@ function LoadCouponScreen() {
   const [isSubmitDone, setIsSubmitDone] = React.useState(false);
   const [isAnon, setIsAnon] = React.useState(false);
   const [CheckUserValidity] = useCheckUserValidity();
-
+  const [loadingSummit, setLoadingSummit] = React.useState(false);
   React.useEffect(() => {
     async function CheckUser() {
       await CheckUserValidity(user.email, appContext.token);
@@ -110,6 +106,7 @@ function LoadCouponScreen() {
     e.preventDefault();
 
     if (file) {
+      setLoadingSummit(true);
       fileReader.onload = async function (event) {
         const csvOutput = event.target.result;
         const json = csvToObj(csvOutput);
@@ -118,6 +115,7 @@ function LoadCouponScreen() {
         const key = await createCouponList(user.email, name, json2);
 
         setIsSubmitDone(true);
+        setLoadingSummit(false);
         setCouponKey(key);
         // const response = await sendToServer(json);
         // if (
@@ -190,6 +188,7 @@ function LoadCouponScreen() {
                 />
               </FormGroup>
             </Box> */}
+
             <Button
               variant="contained"
               onClick={handleSubmit}
@@ -197,6 +196,11 @@ function LoadCouponScreen() {
             >
               {isSubmitDone ? 'Coupons succesfully loaded!' : 'Load coupons!'}
             </Button>
+            {loadingSummit && (
+              <Box sx={{ mt: 2 }}>
+                <CircularProgress />
+              </Box>
+            )}
           </form>
           {couponKey && (
             <Box sx={{ mt: '1rem', fontSize: '0.8rem' }}>

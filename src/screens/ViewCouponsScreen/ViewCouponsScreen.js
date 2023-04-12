@@ -4,6 +4,8 @@ import { DataGrid } from '@mui/x-data-grid';
 import { Typography, Box, Chip } from '@mui/material';
 import { AppContext } from '../../App';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import Skeleton from '@mui/material/Skeleton';
+import Stack from '@mui/material/Stack';
 import { ResetTvOutlined } from '@mui/icons-material';
 import Snackbar from '@mui/material/Snackbar';
 import dayjs from 'dayjs';
@@ -259,6 +261,20 @@ export default function DataTable() {
       <Typography variant="h4" sx={{ mt: 2, mb: 2, textAlign: 'left' }}>
         My Coupons
       </Typography>
+      {!flagUser && !flagApprover && (
+        <div style={{ height: 300, width: '100%' }}>
+          <Stack spacing={1}>
+            <Skeleton variant="rectangular" width={300} height={28} />
+            <Skeleton variant="rectangular" width={200} height={28} />
+            <Skeleton variant="rectangular" width={200} height={28} />
+            <Skeleton
+              variant="rounded"
+              width={window.innerWidth - 100}
+              height={300}
+            />
+          </Stack>
+        </div>
+      )}
       {flagUser &&
         data.map((cl, idx) => {
           return (
