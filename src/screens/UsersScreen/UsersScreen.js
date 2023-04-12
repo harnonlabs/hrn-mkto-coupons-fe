@@ -6,6 +6,8 @@ import { AppContext } from '../../App';
 import Snackbar from '@mui/material/Snackbar';
 import { useCheckUserValidity } from '../../utils/useCheckUserValidity';
 import { getCompanies, getUsers } from '../../utils/queries';
+import Skeleton from '@mui/material/Skeleton';
+import Stack from '@mui/material/Stack';
 
 export default function UsersSCreen() {
   const { user } = useAuth0();
@@ -90,6 +92,20 @@ export default function UsersSCreen() {
   return (
     <div style={{ height: 400, width: '100%' }}>
       {/* {dataFlag && <p>({data[0].email})</p>} */}
+      {!dataFlag && (
+        <div style={{ height: 300, width: '100%' }}>
+          <Stack spacing={1}>
+            <Skeleton variant="rectangular" width={300} height={28} />
+            <Skeleton variant="rectangular" width={200} height={28} />
+            <Skeleton variant="rectangular" width={200} height={28} />
+            <Skeleton
+              variant="rounded"
+              width={window.innerWidth - 100}
+              height={300}
+            />
+          </Stack>
+        </div>
+      )}
       {dataFlag && (
         <Box key={`dg-user`}>
           <Typography variant="h4" sx={{ mt: 2, mb: 2, textAlign: 'left' }}>
