@@ -19,6 +19,7 @@ export default function PickerCouponsLists({
   const [selectedCouponList, setSelectedCouponList] = React.useState('');
   const [role, setRole] = React.useState(0);
   const [approver, setApprover] = React.useState(false);
+  const [couponsExist, setCouponsExist] = React.useState(false);
   const handleChange = (event) => {
     setSelectedCouponList(event.target.value);
     setter(event.target.value);
@@ -104,6 +105,7 @@ export default function PickerCouponsLists({
       });
 
       if (response) {
+        setCouponsExist(true);
         setCouponsList(CouponList);
       }
     } catch (err) {
@@ -163,7 +165,7 @@ export default function PickerCouponsLists({
             });
           }
         }
-
+        setCouponsExist(true);
         setCouponsList(
           ApprovedFilter
             ? finalArr.filter((finalArr) => finalArr.approved === true)
@@ -186,7 +188,7 @@ export default function PickerCouponsLists({
           label="Select a coupon list"
           onChange={handleChange}
         >
-          {couponsList ? (
+          {couponsExist ? (
             couponsList.map((couponList) => (
               <MenuItem key={couponList.key} value={couponList.key}>
                 {couponList.name}

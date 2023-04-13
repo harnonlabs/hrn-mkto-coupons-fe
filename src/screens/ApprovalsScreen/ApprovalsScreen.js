@@ -223,26 +223,34 @@ export default function ApprovalsSCreen() {
               <Typography variant="h6" sx={{ mt: '1rem', textAlign: 'left' }}>
                 {cl.name}
               </Typography>
-
-              <DataGrid
-                rows={cl.coupons}
-                columns={columns}
-                pageSize={50}
-                rowsPerPageOptions={[50]}
-                autoHeight
-                initialState={{
-                  pinnedColumns: {
-                    right: ['actions'],
-                  },
-                }}
-              />
+              {cl.coupons.length > 0 ? (
+                <DataGrid
+                  rows={cl.coupons}
+                  columns={columns}
+                  pageSize={50}
+                  rowsPerPageOptions={[50]}
+                  autoHeight
+                  initialState={{
+                    pinnedColumns: {
+                      right: ['actions'],
+                    },
+                  }}
+                />
+              ) : (
+                <Typography
+                  variant="title"
+                  sx={{ mt: '1rem', textAlign: 'left' }}
+                >
+                  No coupons created
+                </Typography>
+              )}
             </Box>
           );
         })}
       {unauthorized && (
         <Box>
           <Typography variant="h4" sx={{ mt: '1rem', textAlign: 'left' }}>
-            {'Only authorize users can approve coupons list'}
+            {'Only authorized users can approve coupons list'}
           </Typography>
         </Box>
       )}
