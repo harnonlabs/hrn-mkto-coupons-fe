@@ -19,7 +19,6 @@ const theme = createTheme({
   success: "#7FDEFF",
   error: "#DABFFF",
 })
-console.log("process.env.REACT_APP_FE_URL", process.env.REACT_APP_FE_URL)
 
 const root = ReactDOM.createRoot(document.getElementById("root"))
 root.render(
