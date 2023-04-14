@@ -4,7 +4,8 @@ import { AppContext } from './../../App';
 import Divider from '@mui/material/Divider';
 import { Button, Box, Typography, Paper } from '@mui/material';
 import PickerCouponsLists from '../../components/PickerCouponsLists/PickerCouponsLists';
-import { useCheckUserValidity } from '../utils/useCheckUserValidity';
+import { useCheckUserValidity } from '../../utils/useCheckUserValidity';
+import { getNextCoupon, spendNextCoupon } from './queries';
 
 export default function TestCouponsScreen() {
   const { user } = useAuth0();
@@ -24,21 +25,26 @@ export default function TestCouponsScreen() {
   }, []);
 
   const testCoupon = async (x) => {
-    console.log('scl', selectedCouponsList);
+    // console.log('scl', selectedCouponsList);
     try {
-      const request = await fetch(`${process.env.REACT_APP_WORKER_URL}/test`, {
-        method: 'POST',
-        body: JSON.stringify({
-          content: {
-            email: selectedCouponsListEmail,
-            token: appContext.token,
-            couponsList: selectedCouponsList,
-          },
-        }),
-        headers: { 'content-type': 'application/json' },
-      });
-      const response = await request.json();
-      setCoupon(response.coupon);
+      //   const request = await fetch(`${process.env.REACT_APP_WORKER_URL}/test`, {
+      //     method: 'POST',
+      //     body: JSON.stringify({
+      //       content: {
+      //         email: selectedCouponsListEmail,
+      //         token: appContext.token,
+      //         couponsList: selectedCouponsList,
+      //       },
+      //     }),
+      //     headers: { 'content-type': 'application/json' },
+      //   });
+      //const response = await request.json();
+      const response = await getNextCoupon(
+        selectedCouponsListEmail,
+        selectedCouponsList,
+      );
+
+      setCoupon(response.value);
       return response;
     } catch (err) {
       console.log('ERROR!', err);
@@ -47,19 +53,25 @@ export default function TestCouponsScreen() {
 
   const spendCoupon = async (x) => {
     try {
-      const request = await fetch(`${process.env.REACT_APP_WORKER_URL}/spend`, {
-        method: 'POST',
-        body: JSON.stringify({
-          content: {
-            email: selectedCouponsListEmail,
-            token: appContext.token,
-            couponsList: selectedCouponsList,
-          },
-        }),
-        headers: { 'content-type': 'application/json' },
-      });
-      const response = await request.json();
-      setCouponSpent(response.coupon);
+      // const request = await fetch(`${process.env.REACT_APP_WORKER_URL}/spend`, {
+      //   method: 'POST',
+      //   body: JSON.stringify({
+      //     content: {
+      //       email: selectedCouponsListEmail,
+      //       token: appContext.token,
+      //       couponsList: selectedCouponsList,
+      //     },
+      //   }),
+      //   headers: { 'content-type': 'application/json' },
+      // });
+      // const response = await request.json();
+      const response = await spendNextCoupon(
+        selectedCouponsListEmail,
+        selectedCouponsList,
+        user.email,
+      );
+
+      setCouponSpent(response.value);
       return response;
     } catch (err) {
       console.log('ERROR!', err);
@@ -68,7 +80,7 @@ export default function TestCouponsScreen() {
 
   return (
     <Box>
-      <Typography variant="h4" sx={{ mt: 2, mb: 2, textAlign: "left" }}>
+      <Typography variant="h4" sx={{ mt: 2, mb: 2, textAlign: 'left' }}>
         Testing
       </Typography>
       <Box
@@ -88,6 +100,7 @@ export default function TestCouponsScreen() {
           <PickerCouponsLists
             setter={setSelectedCouponsList}
             setterEmail={setSelectedCouponsListEmail}
+            ApprovedFilter={true}
           />
           <Button variant="contained" onClick={testCoupon} sx={{ mb: 1 }}>
             Test Coupon

@@ -23,7 +23,7 @@ export default function Header() {
               <img src={H} width="40" sx={{ mr: 2 }} alt="Harnon.co" />
             </Box>
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              HRN MARKETO COUPONS
+              HARNON MARKETO COUPONS
             </Typography>
             <LoginButton />
             <LogoutButton />

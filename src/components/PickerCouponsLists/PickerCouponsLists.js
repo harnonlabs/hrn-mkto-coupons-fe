@@ -6,70 +6,96 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import { useAuth0 } from '@auth0/auth0-react';
 import { AppContext } from './../../App';
+import { getAdminCoupons, getUser, getUserCoupons } from '../../utils/queries';
 
-export default function PickerCouponsLists({ setter, setterEmail }) {
+export default function PickerCouponsLists({
+  setter,
+  setterEmail,
+  ApprovedFilter,
+}) {
   const { user, isAuthenticated, isLoading } = useAuth0();
   const appContext = React.useContext(AppContext);
   const [couponsList, setCouponsList] = React.useState();
   const [selectedCouponList, setSelectedCouponList] = React.useState('');
-
+  const [role, setRole] = React.useState(0);
+  const [approver, setApprover] = React.useState(false);
+  const [couponsExist, setCouponsExist] = React.useState(false);
   const handleChange = (event) => {
     setSelectedCouponList(event.target.value);
     setter(event.target.value);
     const list = couponsList.find((item) => item.key === event.target.value);
-    console.log('selEmail', list.email);
+
     setterEmail(list.email);
   };
 
   React.useEffect(() => {
-    async function getUserInfo() {
-      try {
-        const request = await fetch(
-          `${process.env.REACT_APP_WORKER_URL}/listUsers`,
-          {
-            method: 'POST',
-            body: JSON.stringify({
-              content: { token: appContext.token, email: user.email },
-            }),
-            headers: { 'content-type': 'application/json' },
-          },
-        );
-        const response = await request.json();
-
-        if (response) {
-          const userResponse = response.find(
-            (item) => item.email === user.email,
-          );
-
-          if (userResponse.approver === true) {
-            console.log('approver');
-            getDataApprover();
-          } else {
-            console.log('getdata');
-            getData();
-          }
-        }
-      } catch (err) {
-        console.log('ERROR!', err);
-      }
-    }
     getUserInfo();
   }, []);
 
+  React.useEffect(() => {
+    if (role !== 0) {
+      if (approver === true || role <= 2) {
+        getDataApprover();
+      } else if (role === 3) {
+        getData();
+      }
+    }
+  }, [role]);
+
+  async function getUserInfo() {
+    try {
+      // const request = await fetch(
+      //   `${process.env.REACT_APP_WORKER_URL}/listUsers`,
+      //   {
+      //     method: 'POST',
+      //     body: JSON.stringify({
+      //       content: { token: appContext.token, email: user.email },
+      //     }),
+      //     headers: { 'content-type': 'application/json' },
+      //   },
+      // );
+      // const response = await request.json();
+
+      // if (response) {
+      //   const userResponse = response.find((item) => item.email === user.email);
+      //   setRole(userResponse.role);
+      //   setApprover(userResponse.approver);
+      // }
+      const userResponse = await getUser(user.email);
+
+      if (userResponse) {
+        // const userResponse = response.find((item) => item.email === user.email);
+
+        setRole(userResponse.role);
+        if (userResponse.role <= 2) {
+          setApprover(true);
+        }
+      }
+    } catch (err) {
+      console.log('ERROR!', err);
+    }
+  }
+
   async function getData() {
     try {
-      const request = await fetch(`${process.env.REACT_APP_WORKER_URL}/list`, {
-        method: 'POST',
-        body: JSON.stringify({
-          content: { token: appContext.token, email: user.email },
-        }),
-        headers: { 'content-type': 'application/json' },
-      });
-      const response = await request.json();
+      // const request = await fetch(`${process.env.REACT_APP_WORKER_URL}/list`, {
+      //   method: 'POST',
+      //   body: JSON.stringify({
+      //     content: { token: appContext.token, email: user.email },
+      //   }),
+      //   headers: { 'content-type': 'application/json' },
+      // });
+      // const response = await request.json();
+      const response = await getUserCoupons(user.email);
+      let filterResponse = [];
+      if (ApprovedFilter) {
+        filterResponse = response.filter(
+          (response) => response.approved === true,
+        );
+      } else {
+        filterResponse = response;
+      }
 
-      const filterResponse = response.filter(
-        (response) => response.approved === true,
-      );
       const CouponList = filterResponse.map((cl) => {
         return {
           name: cl.name,
@@ -79,6 +105,7 @@ export default function PickerCouponsLists({ setter, setterEmail }) {
       });
 
       if (response) {
+        setCouponsExist(true);
         setCouponsList(CouponList);
       }
     } catch (err) {
@@ -88,25 +115,37 @@ export default function PickerCouponsLists({ setter, setterEmail }) {
 
   async function getDataApprover() {
     try {
-      const request = await fetch(
-        `${process.env.REACT_APP_WORKER_URL}/listApprovals`,
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            content: { token: appContext.token, email: user.email },
-          }),
-          headers: { 'content-type': 'application/json' },
-        },
-      );
-      const response = await request.json();
-
+      // const request = await fetch(
+      //   `${process.env.REACT_APP_WORKER_URL}/listApprovals`,
+      //   {
+      //     method: 'POST',
+      //     body: JSON.stringify({
+      //       content: { token: appContext.token, email: user.email },
+      //     }),
+      //     headers: { 'content-type': 'application/json' },
+      //   },
+      // );
+      // const response = await request.json();
+      const response = await getAdminCoupons(user.email);
       if (response) {
-        const userResponse = response.find((item) => item.email === user.email);
-        const filterCompanyUsers = response.filter(
-          (item) => item.companyName === userResponse.companyName,
-        );
-        let finalArr = [];
+        // const userResponse = response.find((item) => item.email === user.email);
+        // let filterCompanyUsers = response.filter(
+        //   (item) => item.companyName === userResponse.companyName,
+        // );
+        // let finalArr = [];
+        // if (role === 3) {
+        //   filterCompanyUsers = response;
+        // }
+        const userResponse = response.find((item) => item.name === user.email);
 
+        let filterCompanyUsers = response.filter(
+          (item) => item.company_id === userResponse.company_id,
+        );
+
+        if (role === 1) {
+          filterCompanyUsers = response;
+        }
+        let finalArr = [];
         const x = filterCompanyUsers.map((cl) => {
           return {
             name: cl.email,
@@ -126,9 +165,11 @@ export default function PickerCouponsLists({ setter, setterEmail }) {
             });
           }
         }
-        console.log(finalArr);
+        setCouponsExist(true);
         setCouponsList(
-          finalArr.filter((finalArr) => finalArr.approved === true),
+          ApprovedFilter
+            ? finalArr.filter((finalArr) => finalArr.approved === true)
+            : finalArr,
         );
       }
     } catch (err) {
@@ -147,7 +188,7 @@ export default function PickerCouponsLists({ setter, setterEmail }) {
           label="Select a coupon list"
           onChange={handleChange}
         >
-          {couponsList ? (
+          {couponsExist ? (
             couponsList.map((couponList) => (
               <MenuItem key={couponList.key} value={couponList.key}>
                 {couponList.name}
