@@ -25,6 +25,7 @@ export default function DataTable() {
   const [columns, setColumns] = React.useState([]);
   const [role, setRole] = React.useState(0);
   const [approver, setApprover] = React.useState(false);
+  const [flagSkeleton, setFlagSkeleton] = React.useState(true);
   React.useEffect(() => {
     async function CheckUser() {
       await CheckUserValidity(user.email, appContext.token);
@@ -34,7 +35,7 @@ export default function DataTable() {
   React.useEffect(() => {
     if (data.length > 0) {
       setColumns([
-        { field: 'coupons', headerName: 'Coupon Number', width: 150 },
+        { field: 'coupon', headerName: 'Coupon Number', width: 150 },
         { field: 'isUsed', headerName: 'Is Used?', width: 80 },
         { field: 'dateUsed', headerName: 'Date Used', width: 200 },
         { field: 'email', headerName: 'email', width: 250 },
@@ -188,6 +189,7 @@ export default function DataTable() {
         }
 
         setDataApprover(finalArr);
+        setFlagSkeleton(false);
       }
     } catch (err) {
       console.log('ERROR!', err);
@@ -219,7 +221,6 @@ export default function DataTable() {
           let c = x[i]['coupons'];
           let result = [];
           for (const [key, value] of Object.entries(c)) {
-            console.log(value.coupons);
             if (value.dateUsed) {
               const stringDate = new Date(value.dateUsed);
               value.dateUsed = dayjs(stringDate).format('YYYY-MM-DD hh:mm:ss');
@@ -236,6 +237,7 @@ export default function DataTable() {
         }
 
         setData(finalArr);
+        setFlagSkeleton(false);
       }
     } catch (err) {
       console.log('ERROR!', err);
@@ -261,7 +263,8 @@ export default function DataTable() {
       <Typography variant="h4" sx={{ mt: 2, mb: 2, textAlign: 'left' }}>
         My Coupons
       </Typography>
-      {!flagUser && !flagApprover && (
+
+      {flagSkeleton && (
         <div style={{ height: 300, width: '100%' }}>
           <Stack spacing={1}>
             <Skeleton variant="rectangular" width={300} height={28} />
@@ -275,6 +278,13 @@ export default function DataTable() {
           </Stack>
         </div>
       )}
+      {data.length <= 0 && !flagSkeleton ? (
+        <Typography variant="title" sx={{ mt: '1rem', textAlign: 'left' }}>
+          No coupons created
+        </Typography>
+      ) : (
+        <></>
+      )}
       {flagUser &&
         data.map((cl, idx) => {
           return (
@@ -282,6 +292,7 @@ export default function DataTable() {
               <Typography variant="h6" sx={{ mt: '1rem', textAlign: 'left' }}>
                 {cl.name}
               </Typography>
+
               {cl.approved ? (
                 <Box sx={{ display: 'flex', mt: 2, mb: 2 }}>
                   <Chip
@@ -311,8 +322,8 @@ export default function DataTable() {
               <DataGrid
                 rows={cl.coupons}
                 columns={columns}
-                pageSize={10}
-                rowsPerPageOptions={[10]}
+                pageSize={5}
+                rowsPerPageOptions={[5]}
                 autoHeight
                 // checkboxSelection
               />
@@ -371,8 +382,8 @@ export default function DataTable() {
                   <DataGrid
                     rows={item.coupons}
                     columns={columns}
-                    pageSize={10}
-                    rowsPerPageOptions={[10]}
+                    pageSize={5}
+                    rowsPerPageOptions={[5]}
                     autoHeight
                     initialState={{
                       pinnedColumns: {

@@ -5,17 +5,20 @@ import React from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 import { AppContext } from '../../App';
 import { useCheckUserValidity } from '../../utils/useCheckUserValidity';
+import Snackbar from '@mui/material/Snackbar';
 
-function copyToClipboard(e) {
-  let copyText = document.getElementById('mktoPayload');
-  navigator.clipboard.writeText(copyText.textContent);
-  alert('Copied the text: ' + copyText.textContent);
-}
+// function copyToClipboard(e) {
+//   let copyText = document.getElementById('mktoPayload');
+//   navigator.clipboard.writeText(copyText.textContent);
+//   alert('Copied the text: ' + copyText.textContent);
+// }
 
 export default function InstallScreen() {
   const appContext = React.useContext(AppContext);
   const { user } = useAuth0();
   const [CheckUserValidity] = useCheckUserValidity();
+  const [openSnackbar, setOpenSnackbar] = React.useState(false);
+  const [copiedKey, setCopiedKey] = React.useState('');
 
   React.useEffect(() => {
     async function CheckUser() {
@@ -23,6 +26,17 @@ export default function InstallScreen() {
     }
     CheckUser();
   }, []);
+
+  const copyToClipboard = () => {
+    let copyText = document.getElementById('mktoPayload');
+    navigator.clipboard.writeText(copyText.textContent);
+    setCopiedKey(copyText.textContent);
+    setOpenSnackbar(true);
+  };
+
+  const onCloseSnackbar = () => {
+    setOpenSnackbar(false);
+  };
 
   return (
     <>
@@ -114,6 +128,12 @@ export default function InstallScreen() {
           </Typography>
         </Paper>
       </Box>
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={1000}
+        onClose={onCloseSnackbar}
+        message={`Key copied to clipboard!`}
+      />
     </>
   );
 }
