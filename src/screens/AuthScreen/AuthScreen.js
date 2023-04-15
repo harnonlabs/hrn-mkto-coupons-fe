@@ -40,7 +40,7 @@ import UsersScreen from '../UsersScreen/UsersScreen';
 import ApprovalsSCreen from '../ApprovalsScreen/ApprovalsScreen';
 import { useCheckUserRole } from '../../utils/useCheckUserRole';
 import { AppContext } from '../../App';
-import SuapabaseTest from '../SuapabaseTest/SuapabaseTest';
+
 import { getUser } from '../../utils/queries';
 import HomeScreen from '../HomeScreen/HomeScreen';
 
@@ -319,7 +319,7 @@ export default function AuthScreen() {
             <Route path="/delete" element={<DeleteScreen />} />
             <Route path="/users" element={<UsersScreen />} />
             <Route path="/approvals" element={<ApprovalsSCreen />} />
-            <Route path="/supabase" element={<SuapabaseTest />} />
+       
             <Route
               path="/account"
               element={<AccountScreen accountData={handleAccountData} />}
